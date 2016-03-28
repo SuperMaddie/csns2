@@ -94,7 +94,7 @@ public class TermDaoImpl implements TermDao {
         String query = "select distinct s.term from OfferedSection s, "
             + "Department d join d.undergraduateCourses c1 join d.graduateCourses c2 "
             + "where d = :department and (s.course = c1 or s.course = c2) "
-            + "order by s.quarter desc";
+            + "order by s.term desc";
 
         return entityManager.createQuery( query, Term.class )
             .setParameter( "department", department )

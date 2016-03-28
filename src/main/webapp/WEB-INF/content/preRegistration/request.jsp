@@ -31,7 +31,7 @@ $(function(){
 <ul id="title">
 <li><a class="bc" href="<c:url value='/department/${dept}/preRegistration/list' />">Pre-Registration</a></li>
 <li>${department.name}</li>
-<li>${quarter.code}</li>
+<li>${term.code}</li>
 <li>Request</li>
 </ul>
 
@@ -41,9 +41,9 @@ $(function(){
   <th>Sections</th>
   <td>
   	<c:forEach items="${sections}" var="section" varStatus="status">
-			<form:checkbox path="sections" value="${section}" id="sec-checkbox${status.index}"/> 
-				<Label for="sec-checkbox${status.index}">${section.course.name} </Label><br />
-		</c:forEach>
+		<form:checkbox path="sections" value="${section}" id="sec-checkbox${status.index}"/> 
+			<Label for="sec-checkbox${status.index}">${section.course.name} </Label><br />
+	</c:forEach>
   </td>
 </tr>
 

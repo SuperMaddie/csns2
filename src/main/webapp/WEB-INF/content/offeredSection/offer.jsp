@@ -31,15 +31,15 @@ function help( name )
 
 <ul id="title">
 <li><a class="bc" href="<c:url value='/department/${dept}/offeredSection/search' />">Offered Sections</a></li>
-<li><a class="bc" href="<c:url value='/department/${dept}/offeredSections?quarter=${section.quarter.code}' />">${department.name}</a></li>
+<li><a class="bc" href="<c:url value='/department/${dept}/offeredSections?term=${section.term.code}' />">${department.name}</a></li>
 <li>New</li>
 </ul>
 
 <form:form modelAttribute="section">
 <table class="general">
 <tr>
-  <th>Quarter</th>
-  <td> ${section.quarter}</td>
+  <th>Term</th>
+  <td> ${section.term}</td>
 </tr>
 
 <tr>
@@ -53,7 +53,7 @@ function help( name )
 <tr>
   <th>Instructor</th>
   <td>
-    <form:select path="instructors" items="${department.faculties}" 
+    <form:select path="instructors" items="${department.faculty}" 
       itemLabel="name" itemValue="id" multiple="false" />
   </td>
 </tr>

@@ -38,6 +38,14 @@ select * from sections where deleted = 'f' and plainto_tsquery(:text) @@ tsv
     order by ts_rank(tsv, plainto_tsquery(:text), 16|32) desc
 ]]>
     </sql-query>
+    
+    <sql-query name="offeredSection.search">
+        <return class="csns.model.academics.OfferedSection" />
+<![CDATA[
+select * from offered_sections where deleted = 'f' and plainto_tsquery(:term) @@ tsv
+    order by ts_rank(tsv, plainto_tsquery(:term), 16|32) desc
+]]>
+    </sql-query>
 
     <sql-query name="assignment.search">
         <return class="csns.model.academics.Assignment" />

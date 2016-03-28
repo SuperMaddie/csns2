@@ -354,6 +354,19 @@ public class Department implements Serializable {
     {
         this.additionalGraduateCourses = additionalGraduateCourses;
     }
+    
+    public List<Course> getCourses()
+    {
+        List<Course> courses = new ArrayList<Course>();
+
+        courses.addAll( getUndergraduateCourses() );
+        courses.addAll( getAdditionalUndergraduateCourses() );
+        courses.addAll( getGraduateCourses() );
+        courses.addAll( getAdditionalGraduateCourses() );
+        courses.addAll( getGraduateCourses() );
+
+        return courses;
+    }
 
     public List<Program> getPrograms()
     {

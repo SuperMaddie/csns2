@@ -697,6 +697,22 @@ create table site_item_additional_resources (
   primary key (item_id, resource_order)
 );
 
+----------------------------
+-----pre register request---
+----------------------------
+create table pre_register_requests (
+    id int8 not null,
+    comment varchar(255),
+    date timestamp,
+    user_id int8 not null,
+    primary key (id)
+);
+
+create table pre_register_request_sections (
+        request_id int8 not null,
+        section_id int8 not null
+);
+
 ---------------------
 --offered sections---
 ---------------------
@@ -704,7 +720,7 @@ create table offered_sections (
     id int8 not null,
     department_id int8 not null,
 	course_id int8 not null,
-    quarter int4 not null,
+    term int4 not null,
     number int4 not null,
     day int4,
     deleted boolean,

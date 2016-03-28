@@ -49,7 +49,7 @@ import csns.model.preRegistration.request.PreRegistrationRequest;
 
 @Entity
 @Table(name="offered_sections", uniqueConstraints = @UniqueConstraint(columnNames = {
-	    "quarter", "course_id", "number" }))
+	    "term", "course_id", "number" }))
 public class OfferedSection implements Serializable, Comparable<OfferedSection> {
 
     private static final long serialVersionUID = 1L;
@@ -60,8 +60,8 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 
     @Embedded
     @AttributeOverrides({ @AttributeOverride(name = "code",
-        column = @Column(name = "quarter", nullable = false)) })
-	private Term quarter;
+        column = @Column(name = "term", nullable = false)) })
+	private Term term;
     
     @Column
     private int capacity;
@@ -122,7 +122,7 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	
     public OfferedSection() {
     	number = 1;
-    	capacity = 20;
+    	capacity = 30;
         instructors = new ArrayList<User>();
         appliedUsers = new ArrayList<User>();
         deleted = false;
@@ -153,11 +153,11 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	}
 
 	public Term getTerm() {
-		return quarter;
+		return term;
 	}
 
-	public void setTerm(Term quarter) {
-		this.quarter = quarter;
+	public void setTerm(Term term) {
+		this.term = term;
 	}
 
 	public int getCapacity() {

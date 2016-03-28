@@ -8,13 +8,13 @@
 <li>${department.name}</li>
 </ul>
 
-<c:if test="${fn:length(quarters) == 0}">
+<c:if test="${fn:length(terms) == 0}">
 <p>No pre-registration forms yet.</p>
 </c:if>
 
-<c:if test="${fn:length(quarters) > 0}">
-	<c:forEach items="${quarters}" var="quarter">
-		<a href="<c:url value='/department/${dept}/preRegistration/request?quarter=${quarter.code}' />">
-			<span style="text-transform: capitalize;"><b>Quarter ${quarter}</b></span></a>
+<c:if test="${fn:length(terms) > 0}">
+	<c:forEach items="${terms}" var="term">
+		<a href="<c:url value='/department/${dept}/preRegistration/request?term=${term.code}' />">
+			<span style="text-transform: capitalize;"><b>Term ${term}</b></span></a>
 	</c:forEach>
 </c:if>

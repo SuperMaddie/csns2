@@ -49,7 +49,7 @@ public class PreRegistrationController {
 		List<Term> terms = termDao.getOfferedSectionTerms(department);
 
 		models.put("department", department);
-		models.put("quarters", terms);
+		models.put("terms", terms);
 		return "preRegistration/list";
 	}
 

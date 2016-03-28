@@ -61,6 +61,15 @@ $(function(){
            src="<c:url value='/img/icons/blackboard_sum.png' />" />Sections</a></li>
     <li><a href="<c:url value='/department/${dept}/projects' />"><img alt=""
            src="<c:url value='/img/icons/bricks.png' />" />Projects</a></li>
+           
+    <security:authorize access="authenticated and principal.isFaculty('${dept}')">
+    <li><a href="<c:url value='/department/${dept}/offeredSections' />"><img alt=""
+           src="<c:url value='/img/icons/blackboard_sum.png' />" />Offered Sections</a></li>
+    </security:authorize>
+    <security:authorize access="authenticated">
+    <li><a href="<c:url value='/department/${dept}/preRegistration/list' />"><img alt=""
+           src="<c:url value='/img/icons/blackboard_sum.png' />" />Pre-Registration</a></li>
+    </security:authorize>
   </ul></div>
 </li>
 
