@@ -99,6 +99,12 @@ $(function(){
     <li><a href="<c:url value='/file/' />"><img alt=""
            src="<c:url value='/img/icons/file_manager.png' />" />File Manager</a></li>
 </security:authorize>
+
+<security:authorize access="authenticated and principal.isFaculty('${dept}')">
+    <li><a href="<c:url value='/department/${dept}/popup/current' />"><img alt=""
+           src="<c:url value='/img/icons/newspaper.png' />" />Popup</a></li>
+</security:authorize>
+
   </ul></div>
 </li>
 </c:if> <%-- end of <c:if test="${not empty dept}"> --%>

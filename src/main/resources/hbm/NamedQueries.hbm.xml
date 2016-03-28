@@ -181,6 +181,17 @@ select * from rubrics where deleted = 'f' and public = 't'
 ]]>
     </sql-query>
 
+
+    <sql-query name="user.search.by.role">
+        <return class="csns.model.core.User" />
+<![CDATA[
+select u.* from users u
+    inner join authorities a on a.user_id = u.id
+    where a.role = :role
+    order by u.first_name, u.last_name
+]]>
+    </sql-query>
+
     <sql-query name="user.search.by.standing">
         <return class="csns.model.core.User" />
 <![CDATA[

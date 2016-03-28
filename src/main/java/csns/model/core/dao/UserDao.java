@@ -43,5 +43,7 @@ public interface UserDao {
     List<User> searchUsersByStanding( String dept, String sybmol );
 
     User saveUser( User user );
+    
+    List<User> searchUsersByRole(String dept, String role);
 
 }

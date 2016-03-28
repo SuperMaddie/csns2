@@ -697,6 +697,54 @@ create table site_item_additional_resources (
   primary key (item_id, resource_order)
 );
 
+-----------
+-- popups -
+-----------
+
+create table popups (
+    id int8 not null,
+    content text,
+    create_date timestamp,
+    expire_date timestamp,
+    publish_date timestamp,
+    set_as_news boolean,
+    subject varchar(255),
+    author_id int8,
+    department_id int8,
+    news_id int8,
+    primary key (id)
+);
+
+create table popup_target_roles (
+    popup_id int8 not null,
+    role varchar(255)
+);
+
+create table popup_target_standings (
+    popup_id int8 not null,
+    standing_id int8 not null,
+    primary key (popup_id, standing_id)
+);
+
+create table popup_readby (
+    user_id int8 not null,
+    popup_id int8 not null,
+    primary key (user_id, popup_id)
+);
+
+create table popup_target_users (
+    user_id int8 not null,
+    popup_id int8 not null,
+    primary key (user_id, popup_id)
+);
+
+create table popup_indi_target_users (
+    user_id int8 not null,
+    popup_id int8 not null,
+    primary key (user_id, popup_id)
+);
+
+
 -------------
 -- surveys --
 -------------

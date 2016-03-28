@@ -835,6 +835,35 @@
         <put-attribute name="title" value="Edit News" />
         <put-attribute name="content" value="/WEB-INF/content/news/edit.jsp" />
     </definition>
+    
+    <!-- ==== -->
+    <!-- Popup -->
+    <!-- ==== -->
+
+    <definition name="popup/current" extends="layout.basic">
+        <put-attribute name="title" value="Popups" />
+        <put-attribute name="content" value="/WEB-INF/content/popup/current.jsp" />
+    </definition>
+    
+   	<definition name="popup/post" extends="layout.alljs">
+        <put-attribute name="title" value="Add Popup" />
+        <put-attribute name="content" value="/WEB-INF/content/popup/post.jsp" />
+    </definition>
+    
+    <definition name="popup/edit" extends="layout.alljs">
+        <put-attribute name="title" value="Edit Popup" />
+        <put-attribute name="content" value="/WEB-INF/content/popup/edit.jsp" />
+    </definition>
+    
+    <definition name="popup/seenUsers" extends="layout.alljs">
+        <put-attribute name="title" value="Seen Users" />
+        <put-attribute name="content" value="/WEB-INF/content/popup/seenUsers.jsp" />
+    </definition>
+    
+    <definition name="popup/remainingUsers" extends="layout.alljs">
+        <put-attribute name="title" value="Remaining Users" />
+        <put-attribute name="content" value="/WEB-INF/content/popup/remainingUsers.jsp" />
+    </definition>
 
     <!-- ============ -->
     <!-- File Manager -->

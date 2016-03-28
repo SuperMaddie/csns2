@@ -157,6 +157,15 @@ public class UserDaoImpl implements UserDao {
             .setParameter( "symbol", symbol.toUpperCase() )
             .getResultList();
     }
+    
+    @Override
+    public List<User> searchUsersByRole( String dept, String role )
+    {
+        return entityManager.createNamedQuery( "user.search.by.role",
+            User.class )
+            .setParameter( "role", role.toUpperCase() + "_" + dept )
+            .getResultList();
+    }
 
     @Override
     @Transactional
