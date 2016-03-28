@@ -13,6 +13,11 @@ drop function term(integer);
 drop function term();
 drop function term(date);
 
+drop table offered_section_instructors;
+drop table offered_section_target_standings;
+drop table offered_section_users;
+drop table offered_sections;
+
 drop table assessment_outcome_courses;
 drop table assessment_objective_outcomes;
 drop table assessment_outcomes;

@@ -98,6 +98,14 @@
         <security:intercept-url pattern="/rubric/*/student/**" access="authenticated" />
         <security:intercept-url pattern="/rubric/*/evaluator/**" access="authenticated and principal.evaluator" />
         <security:intercept-url pattern="/rubric/**" access="authenticated and principal.instructor" />
+        
+        <security:intercept-url pattern="/department/*/preRegistration/**" access="authenticated" />
+        
+        <security:intercept-url pattern="/department/*/offeredSections" access="authenticated and principal.faculty" />
+	    <security:intercept-url pattern="/department/*/offeredSection/**" access="authenticated and principal.admin" />
+	    <security:intercept-url pattern="/department/*/offeredSection/view" access="authenticated and principal.faculty" />
+	      
+        
         <security:intercept-url pattern="/department/*/people" access="authenticated and principal.faculty" />
         <security:intercept-url pattern="/department/*/section" access="authenticated and principal.admin" />
         <security:intercept-url pattern="/department/*/section/import" access="authenticated and principal.admin" />

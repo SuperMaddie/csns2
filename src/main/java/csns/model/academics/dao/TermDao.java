@@ -46,5 +46,7 @@ public interface TermDao {
      * Returns the terms in which there were any sections for the department.
      */
     List<Term> getSectionTerms( Department department );
+    
+    List<Term> getOfferedSectionTerms( Department department );
 
 }

@@ -299,6 +299,45 @@
         <put-attribute name="title" value="Projects" />
         <put-attribute name="content" value="/WEB-INF/content/department/projects.jsp" />
     </definition>
+    
+    <definition name="department/offeredSections" extends="layout.alljs">
+        <put-attribute name="title" value="Offered Sections" />
+        <put-attribute name="content" value="/WEB-INF/content/department/offeredSections.jsp" />
+    </definition>
+    
+    <!-- ================ -->
+    <!-- Offered Sections -->
+    <!-- ================ -->
+   
+    
+    <definition name="offeredSection/offer" extends="layout.alljs">
+        <put-attribute name="title" value="Offer Section" />
+        <put-attribute name="content" value="/WEB-INF/content/offeredSection/offer.jsp" />
+    </definition>
+    
+    <definition name="offeredSection/edit" extends="layout.alljs">
+        <put-attribute name="title" value="Edit Section" />
+        <put-attribute name="content" value="/WEB-INF/content/offeredSection/edit.jsp" />
+    </definition>
+    
+    <definition name="offeredSection/view" extends="layout.alljs">
+        <put-attribute name="title" value="View Section" />
+        <put-attribute name="content" value="/WEB-INF/content/offeredSection/view.jsp" />
+    </definition>
+    
+    <!-- ================ -->
+    <!-- Pre Registration -->
+    <!-- ================ -->
+    <definition name="preRegistration/list" extends="layout.alljs">
+        <put-attribute name="title" value="View Section" />
+        <put-attribute name="content" value="/WEB-INF/content/preRegistration/list.jsp" />
+    </definition>
+    
+    <definition name="preRegistration/request" extends="layout.alljs">
+        <put-attribute name="title" value="View Section" />
+        <put-attribute name="content" value="/WEB-INF/content/preRegistration/request.jsp" />
+    </definition>
+    
 
     <!-- ======= -->
     <!-- Program -->

@@ -697,6 +697,45 @@ create table site_item_additional_resources (
   primary key (item_id, resource_order)
 );
 
+---------------------
+--offered sections---
+---------------------
+create table offered_sections (
+    id int8 not null,
+    department_id int8 not null,
+	course_id int8 not null,
+    quarter int4 not null,
+    number int4 not null,
+    day int4,
+    deleted boolean,
+    start_time timestamp,
+    end_time timestamp,
+    create_date timestamp,
+    expire_date timestamp,
+    publish_date timestamp,
+    capacity int4,
+    primary key (id)
+);
+
+create table offered_section_instructors (
+    section_id int8 not null,
+    instructor_id int8 not null,
+    instructor_order int4 not null,
+    primary key (section_id, instructor_order)
+);
+
+create table offered_section_target_standings (
+    section_id int8 not null,
+    standing_id int8 not null,
+    primary key (section_id, standing_id)
+);
+
+create table offered_section_users (
+    section_id int8 not null,
+    user_id int8 not null
+);
+
+
 -------------
 -- surveys --
 -------------
