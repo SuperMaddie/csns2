@@ -53,7 +53,7 @@ import csns.web.editor.OfferedSectionPropertyEditor;
 import csns.web.editor.TermPropertyEditor;
 
 @Controller
-@SessionAttributes({"request"})
+@SessionAttributes("request")
 public class PreRegistrationControllerS {
 	
 	@Autowired

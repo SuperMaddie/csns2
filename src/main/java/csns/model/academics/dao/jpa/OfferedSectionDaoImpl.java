@@ -44,7 +44,7 @@ public class OfferedSectionDaoImpl implements OfferedSectionDao {
     private EntityManager entityManager;
 
     @Override
-    @PostAuthorize("principal.faculty or principal.admin")
+    //@PostAuthorize("principal.faculty or principal.admin")
     public OfferedSection getSection( Long id )
     {
         return entityManager.find( OfferedSection.class, id );

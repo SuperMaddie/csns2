@@ -38,8 +38,9 @@ public class OfferedSectionPropertyEditor extends PropertyEditorSupport {
 	@Override
     public void setAsText( String text ) throws IllegalArgumentException
     {
-        if( StringUtils.hasText( text ) )
-            setValue( offeredSectionDao.getSection( Long.valueOf( text ) ) );
+        if( StringUtils.hasText( text ) ){
+            setValue( offeredSectionDao.getSection( Long.valueOf( text )) );
+        }
     }
 
     @Override
