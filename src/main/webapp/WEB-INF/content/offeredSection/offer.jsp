@@ -22,16 +22,11 @@ $(function(){
     });
 });
 
-function help( name )
-{
-    $("#help-"+name).dialog("open");
-}
-
 </script>
 
 <ul id="title">
 <li><a class="bc" href="<c:url value='/department/${dept}/offeredSection/search' />">Offered Sections</a></li>
-<li><a class="bc" href="<c:url value='/department/${dept}/offeredSections?term=${section.term.code}' />">${department.name}</a></li>
+<li><a class="bc" href="<c:url value='/department/${dept}/offeredSections?term=${term.code}' />">${department.name}</a></li>
 <li>New</li>
 </ul>
 
@@ -39,7 +34,7 @@ function help( name )
 <table class="general">
 <tr>
   <th>Term</th>
-  <td> ${section.term}</td>
+  <td> ${term}</td>
 </tr>
 
 <tr>
@@ -51,10 +46,12 @@ function help( name )
 </tr>
 
 <tr>
-  <th>Instructor</th>
+  <th>Faculty</th>
   <td>
-    <form:select path="instructors" items="${department.faculty}" 
-      itemLabel="name" itemValue="id" multiple="false" />
+    <form:select path="instructors" itemLabel="name" itemValue="id" multiple="false">
+        <form:option  value="">Select Instructor</form:option>
+    	<form:options items="${department.faculty}" />
+    </form:select>
   </td>
 </tr>
 
@@ -92,7 +89,7 @@ function help( name )
 <tr>
   <th>Section Number</th>
   <td>
-  	<form:select path="number" items="${numbers}" multiple="false" />
+  	<form:input path="number" />
   </td>
 </tr>
 
@@ -118,19 +115,6 @@ function help( name )
 </tr> -->
 
 <tr>
-  <th>Publish Date</th>
-  <td>
-    <form:input path="publishDate" cssClass="smallinput" size="10" maxlength="10" />
-  </td>
-</tr>
-  
-<tr>
-  <th>Expiration Date</th>
-  <td>
-    <form:input path="expireDate" cssClass="smallinput" size="10" maxlength="10" />
-  </td>
-</tr>
-<tr>
 <th></th>
 <td><input type="submit" name="submit" value="Add" class="subbutton"></td>
 </tr>
@@ -138,10 +122,3 @@ function help( name )
 </table>
 </form:form>
 
-<!-- <div id="help-expdate" class="help">
-Each section should have an <em>expiration date</em>, after which
-	students are not able to change it.
-</div>
-<div id="help-pubdate" class="help">
-Each section should have a <em>publish date</em>, after which the
-entry will be published automatically to users.</div>	 -->

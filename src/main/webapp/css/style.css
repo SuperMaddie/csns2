@@ -68,7 +68,7 @@ img {
     font:14px "Times New Roman", Times, serif;
     border:1px solid #cccccc;
 }
-.forminput, .smallinput, .leftinput, .smallerinput, .format_form textarea, .format_form input, .textarea {
+.forminput, .mediuminput, .smallinput, .leftinput, .smallerinput, .format_form textarea, .format_form input, .textarea {
     font:14px "Times New Roman", Times, serif;
     padding: 5px;
     border:1px solid #c1c1c1;
@@ -81,6 +81,10 @@ img {
 
 .forminput {
     width:250px;
+}
+.mediuminput {
+    width:100px;
+    text-align:center;
 }
 .smallinput {
     width:70px;

@@ -1,9 +1,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 
 <script>
 $(function(){
+   $("#publishDate").datepicker({
+		inline : true
+	});
+	$('#expireDate').datepicker({
+	    inline: true
+	});
     $("table").tablesorter();
     $("select[name='term'] option").each(function(){
        if( $(this).val() == ${term.code}) 
@@ -12,6 +19,14 @@ $(function(){
     $("select[name='term']").change(function(){
         var term = $("select[name='term'] option:selected").val();
         window.location.href = "offeredSections?term=" + term;
+    });
+    $("input[name='publishDate']").change(function(){
+    	var date = $("input[name='publishDate']").val();
+    	window.location.href = "TentativeSchedule/edit?publishDate="+date+"&id="+${schedule.id}
+    });
+    $("input[name='expireDate']").change(function(){
+    	var date = $("input[name='expireDate']").val();
+    	window.location.href = "TentativeSchedule/edit?expireDate="+date+"&id="+${schedule.id}
     });
 });
 
@@ -30,29 +45,59 @@ function remove( id ) {
     <c:forEach var="t" items="${terms}"><option value="${t.code}">${t}</option></c:forEach>
   </select>
 </li>
-<security:authorize access="authenticated and (principal.isAdmin('${dept}') or principal.isFaculty('${dept}'))">
+<c:if test="${not empty schedule}">
 <li class="align_right"><a href="offeredSection/offer?term=${term.code}"><img alt="[Offer Section]"
   title="Offer Section" src="<c:url value='/img/icons/table_import.png' />" /></a></li>
-</security:authorize>
+</c:if>
 </ul>
 
-<c:if test="${fn:length(sections) == 0}">
-	<p>No sections is offered for this term.</p>
+<c:choose>
+<c:when test="${empty schedule}">
+	<a href="tentativeSchedule/create?term=${term.code}">Create tentative schedule</a>
+</c:when>
+
+<c:otherwise>
+<c:if test="${fn:length(schedule.sections) == 0}">
+	<p>No sections offered yet.</p>
 </c:if>
 
-<c:if test="${fn:length(sections) > 0}">
+<form:form modelAttribute="schedule">
+<table>
+<thead>
+	<tr><th>Publish Date</th>
+	<th>Close Date</th></tr>
+</thead>
+<tbody>
+	<tr><td><form:input path="publishDate" name="publishDate" id="publishDate"/></td>
+	<td><form:input path="closeDate" name="expireDate" id="expireDate" /></td></tr>
+</tbody>
+</table>
+</form:form>
+
+<c:if test="${fn:length(schedule.sections) > 0}">
+<table>
+<thead>
+	<tr>
+	<th>Publish Date</th><th>Close Date</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+	<td></td><td></td>
+	</tr>
+</tbody>
+</table>
+
 <table class="viewtable">
 <thead>
 <tr>
   <th>Code</th><th>Name</th><th>Applied Users</th>
-  <security:authorize access="authenticated and principal.isAdmin('${dept}')">
   <th></th>
   <th></th>
-  </security:authorize>
 </tr>
 </thead>
 <tbody>
-<c:forEach items="${sections}" var="section">
+<c:forEach items="${schedule.sections}" var="section">
 <tr>
   <td>
     <a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}' />">${section.course.code}
@@ -64,7 +109,6 @@ function remove( id ) {
   <td>
 	<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}' />">${fn:length(section.requests)} user(s) applied</a>
   </td>
-  <security:authorize access="authenticated and principal.isAdmin('${dept}')">
   <td>
   	<a href="<c:url value='/department/${dept}/offeredSection/edit?id=${section.id}' />"> Edit </a>
   </td>
@@ -72,9 +116,11 @@ function remove( id ) {
   	<a href="javascript:remove(${section.id})">
   	 <img src="<c:url value='/img/icons/delete.png' />" alt="Remove" title="Remove" /> </a>
   </td>
-  </security:authorize>
 </tr>
 </c:forEach>
 </tbody>
 </table>
 </c:if>
+
+</c:otherwise>
+</c:choose>

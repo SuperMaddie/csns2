@@ -718,18 +718,14 @@ create table pre_register_request_sections (
 ---------------------
 create table offered_sections (
     id int8 not null,
-    department_id int8 not null,
-	course_id int8 not null,
-    term int4 not null,
-    number int4 not null,
+    capacity int4,
     day int4,
     deleted boolean,
     start_time timestamp,
     end_time timestamp,
-    create_date timestamp,
-    expire_date timestamp,
-    publish_date timestamp,
-    capacity int4,
+    location varchar(255),
+    number int4 not null,
+    course_id int8 not null,
     primary key (id)
 );
 
@@ -746,9 +742,24 @@ create table offered_section_target_standings (
     primary key (section_id, standing_id)
 );
 
-create table offered_section_users (
-    section_id int8 not null,
-    user_id int8 not null
+
+
+--------------------------
+-- tentative schedules ---
+--------------------------
+create table tentative_schedules (
+    id int8 not null,
+    publish_date timestamp,
+    expire_date timestamp,
+    term int4 not null,
+    department_id int8 not null,
+    deleted boolean,
+    primary key (id)
+);
+
+create table tentative_schedule_sections (
+    schedule_id int8 not null,
+    section_id int8 not null
 );
 
 

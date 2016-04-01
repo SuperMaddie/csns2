@@ -1,7 +1,7 @@
 /*
  * This file is part of the CSNetwork Services (CSNS) project.
  * 
- * Copyright 2012, Chengyu Sun (csun@calstatela.edu).
+ * Copyright 2012, Mahdiye Jamali (mjamali@calstatela.edu).
  * 
  * CSNS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Affero General Public License as published by the Free
@@ -38,6 +38,7 @@ import csns.model.academics.OfferedSection;
 import csns.model.academics.Term;
 import csns.model.academics.dao.DepartmentDao;
 import csns.model.academics.dao.OfferedSectionDao;
+import csns.model.academics.dao.TentativeScheduleDao;
 import csns.model.academics.dao.TermDao;
 import csns.model.core.User;
 import csns.model.preRegistration.request.PreRegistrationRequest;
@@ -48,31 +49,30 @@ import csns.web.editor.TermPropertyEditor;
 @Controller
 @SessionAttributes("section")
 public class OfferedSectionController {
-    
-    @Autowired
-    private OfferedSectionDao offeredSectionDao;
-    
-    @Autowired
-    private PreRegistrationRequestDao requestDao;
 
-    @Autowired
-    private TermDao termDao;
+	@Autowired
+	private TentativeScheduleDao scheduleDao;
 
-    @Autowired
-    private DepartmentDao departmentDao;
+	@Autowired
+	private OfferedSectionDao offeredSectionDao;
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private PreRegistrationRequestDao requestDao;
 
-    @InitBinder
-    public void initBinder( WebDataBinder binder )
-    {
-        binder.registerCustomEditor( Term.class,
-            (TermPropertyEditor) context.getBean( "termPropertyEditor" ) );
-        binder.registerCustomEditor( Course.class,
-            (CoursePropertyEditor) context.getBean( "coursePropertyEditor" ) );
-    }
+	@Autowired
+	private TermDao termDao;
 
+	@Autowired
+	private DepartmentDao departmentDao;
+
+	@Autowired
+	private WebApplicationContext context;
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(Term.class, (TermPropertyEditor) context.getBean("termPropertyEditor"));
+		binder.registerCustomEditor(Course.class, (CoursePropertyEditor) context.getBean("coursePropertyEditor"));
+	}
 
 	@RequestMapping("/department/{dept}/offeredSection")
 	public String view(@PathVariable String dept, @RequestParam Long id, ModelMap models) {
@@ -82,13 +82,13 @@ public class OfferedSectionController {
 		List<PreRegistrationRequest> requests = requestDao.getRequests(section);
 		List<User> commenters = new ArrayList<>();
 		List<String> comments = new ArrayList<>();
-		for(PreRegistrationRequest req : requests) {
-			if(req.getComment() != null) {
+		for (PreRegistrationRequest req : requests) {
+			if (req.getComment() != null) {
 				commenters.add(req.getRequester());
 				comments.add(req.getComment());
 			}
 		}
-		
+
 		models.put("comments", comments);
 		models.put("commenters", commenters);
 		models.put("requests", requests);
@@ -97,28 +97,35 @@ public class OfferedSectionController {
 		return "offeredSection/view";
 	}
 
+	// Offered Sections
+	@RequestMapping("/department/{dept}/offeredSections")
+	public String offeredSections(@PathVariable String dept, @RequestParam(required = false) Term term,
+			ModelMap models) {
+		Department department = departmentDao.getDepartment(dept);
+		List<Term> terms = termDao.getScheduledTerms(department);
+		List<OfferedSection> sections = scheduleDao.getSchedule(department, term) != null
+				? scheduleDao.getSchedule(department, term).getSections() : new ArrayList<OfferedSection>();
 
-    
-    //Offered Sections
-    @RequestMapping("/department/{dept}/offeredSections")
-    public String offeredSections( @PathVariable String dept,
-        @RequestParam(required = false) Term term, ModelMap models )
-    {
-        Department department = departmentDao.getDepartment( dept );
-        List<Term> terms = termDao.getOfferedSectionTerms( department );
+		Term currentTerm = new Term();
+		Term nextTerm = currentTerm.next();
+		Term nextNextTerm = nextTerm.next();
+		if (term == null) {
+			term = nextTerm;
+		}
+		if (!terms.contains(term)) {
+			terms.add(0, term);
+		}
+		if (term.getCode() == nextTerm.getCode() && !terms.contains(nextNextTerm)) {
+			terms.add(0, nextNextTerm);
+		} else if (term.getCode() == nextNextTerm.getCode() && !terms.contains(nextTerm)) {
+			terms.add(0, nextTerm);
+		}
 
-        Term currentTerm = new Term();
-        Term nextTerm = currentTerm.next();
-        if( term == null ) term = nextTerm;
-        if( !terms.contains( term ) ) terms.add( 0, term );
-        if( term != nextTerm ) nextTerm = nextTerm.next();
-        if( !terms.contains( nextTerm ) ) terms.add( 0, nextTerm );
-
-        models.put( "department", department );
-        models.put( "term", term );
-        models.put( "terms", terms );
-        models.put( "sections", offeredSectionDao.getSections( department, term ) );
-        return "department/offeredSections";
-    }
+		models.put("department", department);
+		models.put("term", term);
+		models.put("terms", terms);
+		models.put("sections", sections);
+		return "department/offeredSections";
+	}
 
 }

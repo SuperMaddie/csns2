@@ -308,7 +308,6 @@
     <!-- ================ -->
     <!-- Offered Sections -->
     <!-- ================ -->
-   
     
     <definition name="offeredSection/offer" extends="layout.alljs">
         <put-attribute name="title" value="Offer Section" />
@@ -338,6 +337,11 @@
         <put-attribute name="content" value="/WEB-INF/content/preRegistration/request.jsp" />
     </definition>
     
+    <definition name="preRegistration/manage" extends="layout.alljs">
+        <put-attribute name="title" value="View Section" />
+        <put-attribute name="content" value="/WEB-INF/content/preRegistration/manage.jsp" />
+    </definition>
+
 
     <!-- ======= -->
     <!-- Program -->

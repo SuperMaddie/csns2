@@ -16,9 +16,11 @@ drop function term(date);
 drop table pre_register_request_sections;
 drop table pre_register_requests;
 
+drop table tentative_schedule_sections;
+drop table tentative_schedules;
+
 drop table offered_section_instructors;
 drop table offered_section_target_standings;
-drop table offered_section_users;
 drop table offered_sections;
 
 drop table assessment_outcome_courses;

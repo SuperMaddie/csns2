@@ -19,17 +19,12 @@
 package csns.model.academics;
 
 import java.io.Serializable;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,18 +33,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import csns.model.core.Day;
 import csns.model.core.User;
 import csns.model.preRegistration.request.PreRegistrationRequest;
 
 @Entity
-@Table(name="offered_sections", uniqueConstraints = @UniqueConstraint(columnNames = {
-	    "term", "course_id", "number" }))
+@Table(name="offered_sections", uniqueConstraints = @UniqueConstraint(columnNames = { "course_id", "number" }))
 public class OfferedSection implements Serializable, Comparable<OfferedSection> {
 
     private static final long serialVersionUID = 1L;
@@ -57,11 +49,6 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	@Id
 	@GeneratedValue
 	private Long id;
-
-    @Embedded
-    @AttributeOverrides({ @AttributeOverride(name = "code",
-        column = @Column(name = "term", nullable = false)) })
-	private Term term;
     
     @Column
     private int capacity;
@@ -69,10 +56,6 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
-    
-    @OneToOne
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
     
     @ManyToMany(mappedBy = "sections")
     private List<PreRegistrationRequest> requests;
@@ -84,28 +67,16 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
     private Day day;
     
     @Column(name = "start_time")
-    private Time startTime;
+    private Date startTime;
     
     @Column(name = "end_time")
-    private Time endTime;
+    private Date endTime;
     
-    @Column(name = "create_date")
-    private Date createDate;
-
-    @Column(name = "publish_date")
-    private Calendar publishDate;
-    
-    @Column(name = "expire_date")
-    private Calendar expireDate;
+    @Column
+    private String location;
     
     @Column
     private boolean deleted;
-    
-    @ManyToMany
-    @JoinTable(name = "offered_section_users",
-    		joinColumns = @JoinColumn(name="section_id"),
-    		inverseJoinColumns = @JoinColumn(name="user_id"))
-    private List<User> appliedUsers;
     
     @ManyToMany
     @JoinTable(name = "offered_section_instructors",
@@ -124,7 +95,6 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
     	number = 1;
     	capacity = 30;
         instructors = new ArrayList<User>();
-        appliedUsers = new ArrayList<User>();
         deleted = false;
 	}
     
@@ -135,10 +105,7 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 
         if( id.equals( section.id ) ) return 0;
 
-        int cmp = getTerm().getCode() - section.getTerm().getCode();
-        if( cmp != 0 ) return cmp;
-
-        cmp = getCourse().getCode().compareTo( section.getCourse().getCode() );
+        int cmp = getCourse().getCode().compareTo( section.getCourse().getCode() );
         if( cmp != 0 ) return cmp;
 
         return getNumber() - section.getNumber();
@@ -150,14 +117,6 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Term getTerm() {
-		return term;
-	}
-
-	public void setTerm(Term term) {
-		this.term = term;
 	}
 
 	public int getCapacity() {
@@ -192,19 +151,19 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		this.day = day;
 	}
 
-	public Time getStartTime() {
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Time startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
-	public Time getEndTime() {
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Time endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
 
@@ -216,12 +175,12 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		this.deleted = deleted;
 	}
 
-	public List<User> getAppliedUsers() {
-		return appliedUsers;
-	}
-
-	public void setAppliedUsers(List<User> appliedUsers) {
-		this.appliedUsers = appliedUsers;
+	public List<User> getUsers() {
+		List<User> users = new ArrayList<>();
+		for(PreRegistrationRequest req : requests) {
+			users.add(req.getRequester());
+		}
+		return users;
 	}
 
 	public List<User> getInstructors() {
@@ -240,38 +199,6 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		this.targetStandings = targetStandings;
 	}
 
-	public Department getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(Department department) {
-		this.department = department;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Calendar getPublishDate() {
-		return publishDate;
-	}
-
-	public void setPublishDate(Calendar publishDate) {
-		this.publishDate = publishDate;
-	}
-
-	public Calendar getExpireDate() {
-		return expireDate;
-	}
-
-	public void setExpireDate(Calendar expireDate) {
-		this.expireDate = expireDate;
-	}
-
 	public List<PreRegistrationRequest> getRequests() {
 		return requests;
 	}
@@ -279,5 +206,16 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	public void setRequests(List<PreRegistrationRequest> requests) {
 		this.requests = requests;
 	}
+	
+    public boolean isInstructor( User user )
+    {
+        if( user != null )
+        {
+            for( User instructor : instructors )
+                if( instructor.getId().equals( user.getId() ) ) return true;
+        }
+
+        return false;
+    }
 	
 }

@@ -89,11 +89,10 @@ public class TermDaoImpl implements TermDao {
     }
     
     @Override
-    public List<Term> getOfferedSectionTerms( Department department )
+    public List<Term> getScheduledTerms( Department department )
     {
-        String query = "select distinct s.term from OfferedSection s, "
-            + "Department d join d.undergraduateCourses c1 join d.graduateCourses c2 "
-            + "where d = :department and (s.course = c1 or s.course = c2) "
+        String query = "select distinct s.term from TentativeSchedule s "
+            + "where s.department = :department "
             + "order by s.term desc";
 
         return entityManager.createQuery( query, Term.class )

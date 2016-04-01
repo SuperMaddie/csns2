@@ -1,7 +1,7 @@
 /*
  * This file is part of the CSNetwork Services (CSNS) project.
- * 
- * Copyright 2013, Chengyu Sun (csun@calstatela.edu).
+ *
+ * Copyright 2013, Mahdiye Jamali (mjamali@calstatela.edu).
  * 
  * CSNS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Affero General Public License as published by the Free
@@ -18,10 +18,8 @@
  */
 package csns.web.controller;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +27,6 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -48,11 +45,12 @@ import csns.model.academics.Course;
 import csns.model.academics.Department;
 import csns.model.academics.OfferedSection;
 import csns.model.academics.Standing;
+import csns.model.academics.TentativeSchedule;
 import csns.model.academics.Term;
 import csns.model.academics.dao.DepartmentDao;
 import csns.model.academics.dao.OfferedSectionDao;
 import csns.model.academics.dao.StandingDao;
-import csns.model.academics.dao.TermDao;
+import csns.model.academics.dao.TentativeScheduleDao;
 import csns.model.core.Day;
 import csns.model.core.User;
 import csns.security.SecurityUtils;
@@ -65,23 +63,19 @@ import csns.web.validator.OfferedSectionValidator;
 
 @Controller
 @SessionAttributes({ "section" })
-@SuppressWarnings("deprecation")
 public class OfferedSectionControllerS {
 
 	@Autowired
-	private StandingDao standingDao;
-
+	private TentativeScheduleDao scheduleDao;
+	
 	@Autowired
-	private TermDao termDao;
+	private StandingDao standingDao;
 
 	@Autowired
 	private OfferedSectionDao offeredSectionDao;
 
 	@Autowired
 	private DepartmentDao departmentDao;
-
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private WebApplicationContext context;
@@ -91,20 +85,11 @@ public class OfferedSectionControllerS {
 
 	private static final Logger logger = LoggerFactory.getLogger(OfferedSectionControllerS.class);
 
-	private Department department;
 	private List<Day> days;
 	private List<Standing> standings;
-	private List<Integer> numbers;
-	private List<Term> terms;
 
 	@PostConstruct
 	public void init() {
-
-		numbers = new ArrayList<>();
-		numbers.add(1);
-		numbers.add(2);
-		numbers.add(3);
-		numbers.add(4);
 		days = Arrays.asList(Day.values());
 		standings = standingDao.getStandings();
 	}
@@ -122,28 +107,12 @@ public class OfferedSectionControllerS {
 	@RequestMapping(value = "/department/{dept}/offeredSection/offer", method = RequestMethod.GET)
 	public String offer(@PathVariable String dept, @RequestParam Term term, ModelMap models) {
 
-		department = departmentDao.getDepartment(dept);
+		Department department = departmentDao.getDepartment(dept);
 		OfferedSection section = new OfferedSection();
-		section.setTerm(term);
-		section.setDepartment(department);
-
-		// get terms
-		terms = termDao.getOfferedSectionTerms(department);
-
-		Term currentTerm = new Term();
-		Term nextTerm = currentTerm.next();
-		if (term == null)
-			term = nextTerm;
-		if (!terms.contains(nextTerm))
-			terms.add(0, nextTerm);
-		nextTerm = nextTerm.next();
-		if (!terms.contains(nextTerm))
-			terms.add(0, nextTerm);
 
 		models.put("standings", standings);
 		models.put("days", days);
-		models.put("numbers", numbers);
-		models.put("terms", terms);
+		models.put("term", term);
 		models.put("department", department);
 		models.put("section", section);
 
@@ -152,68 +121,71 @@ public class OfferedSectionControllerS {
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/offer", method = RequestMethod.POST)
 	public String offer(@ModelAttribute("section") OfferedSection section, @PathVariable String dept,
-			SessionStatus sessionStatus, BindingResult result) {
+			@RequestParam Term term, SessionStatus sessionStatus, BindingResult result) {
 
+		Department department = departmentDao.getDepartment(dept);
 		offeredSectionValidator.validate(section, result);
 		if (result.hasErrors()) {
 		}
-		section.setCreateDate(new Date());
-		offeredSectionDao.saveSection(section);
+		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
+		schedule.getSections().add(section);
 
-		logger.info(SecurityUtils.getUser().getUsername() + " offered section " + section.getTerm().getShortString()
-				+ " " + section.getCourse().getCode() + "-" + section.getNumber());
+		schedule = scheduleDao.saveSchedule(schedule);
+		
+		logger.info(SecurityUtils.getUser().getUsername() + " added section " + section.getCourse().getCode() + "-" + section.getNumber()
+						+ " to schedule of term " + term.getShortString());
 
 		sessionStatus.setComplete();
-		return "redirect:/department/" + dept + "/offeredSections";
+		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
 	}
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/edit", method = RequestMethod.GET)
-	public String edit(@PathVariable String dept, @RequestParam Long id, ModelMap models) {
+	public String edit(@PathVariable String dept, @RequestParam Term term, @RequestParam Long id, ModelMap models) {
 
+		Department department = departmentDao.getDepartment(dept);
 		OfferedSection section = offeredSectionDao.getSection(id);
-
-		department = departmentDao.getDepartment(dept);
-
-		// get terms
-		terms = termDao.getOfferedSectionTerms(department);
-		Term currentTerm = new Term();
-		Term nextTerm = currentTerm.next();
-		if (!terms.contains(nextTerm))
-			terms.add(0, nextTerm);
-		nextTerm = nextTerm.next();
-		if (!terms.contains(nextTerm))
-			terms.add(0, nextTerm);
 
 		models.put("standings", standings);
 		models.put("days", days);
-		models.put("numbers", numbers);
-		models.put("terms", terms);
+		models.put("term", term);
 		models.put("department", department);
 		models.put("section", section);
 		return "offeredSection/edit";
 	}
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/edit", method = RequestMethod.POST)
-	public String edit(@ModelAttribute("section") OfferedSection section, @PathVariable String dept,
+	public String edit(@ModelAttribute("section") OfferedSection section, @RequestParam Term term, @PathVariable String dept,
 			SessionStatus sessionStatus, BindingResult result) {
 
 		section = offeredSectionDao.saveSection(section);
-		logger.info(SecurityUtils.getUser().getName() + " editted section " + section.getTerm().getShortString()
-				+ " " + section.getCourse().getCode() + "-" + section.getNumber());
+		logger.info(SecurityUtils.getUser().getUsername() + " editted section " + section.getCourse().getCode() + 
+				"-" + section.getNumber() + " of term " + term.getShortString());
 
-		return "redirect:/department/" + dept + "/offeredSections";
+		sessionStatus.setComplete();
+		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
 	}
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/delete")
-	public String delete(@PathVariable String dept, @RequestParam Long id) {
+	public String delete(@PathVariable String dept, @RequestParam Long id, @RequestParam Term term) {
 
+		TentativeSchedule schedule = scheduleDao.getSchedule(departmentDao.getDepartment(dept), term);
+		
 		OfferedSection section = offeredSectionDao.deleteSection(offeredSectionDao.getSection(id));
+		
+		//delete section from schedule
+		List<OfferedSection> sections = schedule.getSections();
+		for(OfferedSection sec : sections) {
+			if(sec.getId() == section.getId()) {
+				sections.remove(sec);
+				break;
+			}
+		}
+		schedule = scheduleDao.saveSchedule(schedule);
 
 		logger.info(SecurityUtils.getUser().getName() + " deleted offered section " + section.getId()
-				+ section.getTerm().getShortString() + " " + section.getCourse().getCode() + "-"
-				+ section.getNumber());
+				+ " " + section.getCourse().getCode() + "-" + section.getNumber());
 
-		return "redirect:/department/" + dept + "/offeredSections?term=" + section.getTerm().getCode();
+		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
 	}
 
 }

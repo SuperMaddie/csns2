@@ -47,6 +47,6 @@ public interface TermDao {
      */
     List<Term> getSectionTerms( Department department );
     
-    List<Term> getOfferedSectionTerms( Department department );
+    List<Term> getScheduledTerms( Department department );
 
 }
