@@ -64,7 +64,7 @@ $(function(){
            
     <security:authorize access="authenticated">
     <li><a href="<c:url value='/department/${dept}/preRegistration' />"><img alt=""
-           src="<c:url value='/img/icons/blackboard_sum.png' />" />Pre-Registration</a></li>
+           src="<c:url value='/img/icons/pre_register2.png' />" />Pre-Registration</a></li>
     </security:authorize>
   </ul></div>
 </li>

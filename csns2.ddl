@@ -52,8 +52,8 @@
         answer_type varchar(31) not null,
         id int8 not null,
         answer_index int4,
-        rating int4,
         text varchar(255),
+        rating int4,
         question_id int8,
         answer_section_id int8 not null,
         attachment_id int8,
@@ -461,26 +461,23 @@
         primary key (section_id, instructor_order)
     );
 
-    create table offered_section_target_standings (
-        section_id int8 not null,
-        standing_id int8 not null,
-        primary key (section_id, standing_id)
-    );
-
-    create table offered_section_users (
-        section_id int8 not null,
-        user_id int8 not null
-    );
-
     create table offered_sections (
         id int8 not null,
         capacity int4,
+        class_number int4,
+        course_code int4,
         day int4,
         deleted boolean,
-        end_time timestamp,
+        end_time varchar(255),
         location varchar(255),
+        notes varchar(255),
         number int4 not null,
-        start_time timestamp,
+        start_time varchar(255),
+        subject varchar(255),
+        term int4 not null,
+        title varchar(255),
+        type varchar(255),
+        units int4,
         course_id int8 not null,
         primary key (id)
     );
@@ -582,13 +579,13 @@
         id int8 not null,
         description varchar(255),
         point_value int4 not null,
-        max_rating int4,
-        min_rating int4,
-        max_selections int4,
-        min_selections int4,
         attachment_allowed boolean not null,
         correct_answer varchar(255),
         text_length int4,
+        max_selections int4,
+        min_selections int4,
+        max_rating int4,
+        min_rating int4,
         question_section_id int8,
         question_index int4,
         primary key (id)
@@ -889,6 +886,7 @@
 
     create table tentative_schedules (
         id int8 not null,
+        deleted boolean,
         expire_date timestamp,
         publish_date timestamp,
         term int4 not null,
@@ -1615,26 +1613,6 @@
 
     alter table offered_section_instructors 
         add constraint FKehhasa3am0og86knk3ls10jgj 
-        foreign key (section_id) 
-        references offered_sections;
-
-    alter table offered_section_target_standings 
-        add constraint FKddvix5x11nvsijh1xnjp3u20t 
-        foreign key (standing_id) 
-        references standings;
-
-    alter table offered_section_target_standings 
-        add constraint FK8nqp22y9gsgyhxl8jvhcdu6ee 
-        foreign key (section_id) 
-        references offered_sections;
-
-    alter table offered_section_users 
-        add constraint FKg1p55jan5lbbarjw2xmxb2w41 
-        foreign key (user_id) 
-        references users;
-
-    alter table offered_section_users 
-        add constraint FK62yw13jn2vrwn9f42ro7lgvqo 
         foreign key (section_id) 
         references offered_sections;
 

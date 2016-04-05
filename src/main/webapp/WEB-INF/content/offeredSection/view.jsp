@@ -15,24 +15,24 @@ $(function(){
 	    if( $("#users-form").find(":checkbox[name='userId']:checked").length  > 0 )
 	        $("#users-form").submit();
 	    else
-	        window.location.href = "<c:url value='/email/compose?backUrl=/department/${dept}/offeredSections' />";
+	        window.location.href = "<c:url value='/email/compose?backUrl=/department/${dept}/preRegistration?term=${term.code}' />";
 	});
 });
 
 function email( userId )
 {
     var url = "<c:url value='/email/compose?userId=' />" + userId;
-    url += "&backUrl=/department/" + "${dept}" + "/offeredSections";
+    url += "&backUrl=/department/" + "${dept}" + "/preRegistration?term="+${term.code};
     window.location.href=url;
 }
 </script>
 
 <ul id="title">
-<li><a class="bc" href="<c:url value='/department/${dept}/offeredSections' />">Offered Sections</a></li>
-<li>${section.course.name}</li>
+<li><a class="bc" href="<c:url value='/department/${dept}/preRegistration?term=${term.code}' />">Offered Sections</a></li>
+<li>${section.sectionTitle}</li>
 <li class="align_right"><a id="email" href="javascript:void(0)"><img title="Email Users"
    alt="[Email Users]" src="<c:url value='/img/icons/email_to_friend.png' />" /></a></li>
-</ul>
+</ul>	
 
 <c:if test="${fn:length(requests) > 0}">
 <form id="users-form" action="<c:url value='/email/compose' />" method="post">

@@ -18,32 +18,15 @@
  */
 package csns.model.academics.dao;
 
-import java.util.List;
-
 import csns.model.academics.Course;
-import csns.model.academics.Department;
 import csns.model.academics.OfferedSection;
 import csns.model.academics.Term;
-import csns.model.core.User;
 
 public interface OfferedSectionDao {
 
     OfferedSection getSection( Long id );
 
     OfferedSection getSection( Term term, Course course, int number );
-
-    List<OfferedSection> getSections( Department department, Term term );
-
-    List<OfferedSection> getSectionsByInstructor( User instructor, Term term );
-
-    List<OfferedSection> getSectionsByInstructor( User instructor, Term term,
-        Course course );
-
-    List<OfferedSection> getSectionsByStudent( User student, Term term );
-
-    List<OfferedSection> searchSections( String term, int maxResults );
-
-    OfferedSection addSection( Term term, Course course, User instructor );
 
     OfferedSection deleteSection( OfferedSection section );
 

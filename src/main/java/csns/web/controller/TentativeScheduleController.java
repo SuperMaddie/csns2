@@ -53,7 +53,7 @@ public class TentativeScheduleController {
 		binder.registerCustomEditor(Calendar.class, new CalendarPropertyEditor("MM/dd/yyyy"));
 	}
 	
-	@RequestMapping(value = "/department/{dept}/tentativeSchedule/create", method = RequestMethod.GET)
+	@RequestMapping("/department/{dept}/tentativeSchedule/create")
 	public String create(@PathVariable String dept, @RequestParam Term term, ModelMap models) {
 		
 		TentativeSchedule schedule = new TentativeSchedule();
@@ -66,7 +66,7 @@ public class TentativeScheduleController {
 		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term;
 	}
 	
-	@RequestMapping(value = "/department/{dept}/tentativeSchedule/edit", method = RequestMethod.GET)
+	@RequestMapping("/department/{dept}/tentativeSchedule/edit")
 	public String edit(@PathVariable String dept, @RequestParam Term term, ModelMap models, 
 			@RequestParam(required=false) Calendar publishDate, @RequestParam(required=false) Calendar expireDate) {
 		

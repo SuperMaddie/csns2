@@ -35,7 +35,7 @@ public class TermDaoImpl implements TermDao {
 
     @PersistenceContext
     private EntityManager entityManager;
-
+    
     @Override
     public List<Term> getTermsByInstructor( User instructor )
     {

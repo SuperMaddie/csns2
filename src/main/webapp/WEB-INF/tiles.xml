@@ -300,11 +300,6 @@
         <put-attribute name="content" value="/WEB-INF/content/department/projects.jsp" />
     </definition>
     
-    <definition name="department/offeredSections" extends="layout.alljs">
-        <put-attribute name="title" value="Offered Sections" />
-        <put-attribute name="content" value="/WEB-INF/content/department/offeredSections.jsp" />
-    </definition>
-    
     <!-- ================ -->
     <!-- Offered Sections -->
     <!-- ================ -->
@@ -324,21 +319,31 @@
         <put-attribute name="content" value="/WEB-INF/content/offeredSection/view.jsp" />
     </definition>
     
+    <definition name="offeredSection/import0" extends="layout.jqueryui">
+        <put-attribute name="title" value="View Section" />
+        <put-attribute name="content" value="/WEB-INF/content/offeredSection/view.jsp" />
+    </definition>
+    
+    <definition name="offeredSection/import0" extends="layout.jqueryui">
+        <put-attribute name="title" value="Import Sections" />
+        <put-attribute name="content" value="/WEB-INF/content/offeredSection/import/import0.jsp" />
+    </definition>
+    
+    <definition name="offeredSection/import1" extends="layout.jqueryui">
+        <put-attribute name="title" value="Import Sections" />
+        <put-attribute name="content" value="/WEB-INF/content/offeredSection/import/import1.jsp" />
+    </definition>
+    
     <!-- ================ -->
     <!-- Pre Registration -->
     <!-- ================ -->
     <definition name="preRegistration/list" extends="layout.alljs">
-        <put-attribute name="title" value="View Section" />
+        <put-attribute name="title" value="Pre-Registration" />
         <put-attribute name="content" value="/WEB-INF/content/preRegistration/list.jsp" />
     </definition>
     
-    <definition name="preRegistration/request" extends="layout.alljs">
-        <put-attribute name="title" value="View Section" />
-        <put-attribute name="content" value="/WEB-INF/content/preRegistration/request.jsp" />
-    </definition>
-    
     <definition name="preRegistration/manage" extends="layout.alljs">
-        <put-attribute name="title" value="View Section" />
+        <put-attribute name="title" value="Pre-Registration Manage" />
         <put-attribute name="content" value="/WEB-INF/content/preRegistration/manage.jsp" />
     </definition>
 

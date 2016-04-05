@@ -348,6 +348,12 @@ public class User
         return StringUtils.hasText( dept )
             && roles.contains( "ROLE_DEPT_REVIEWER_" + dept );
     }
+    
+    @JsonIgnore
+    public boolean isStudent()
+    {
+    	return !(isReviewer() || isInstructor() || isEvaluator() || isFaculty() || isAdmin());
+    }
 
     @JsonIgnore
     public String getName()

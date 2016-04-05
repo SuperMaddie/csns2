@@ -84,7 +84,7 @@ public class Course implements Serializable, Comparable<Course> {
         minUnits = maxUnits = 4;
         obsolete = false;
     }
-
+    
     @Override
     public int compareTo( Course course )
     {

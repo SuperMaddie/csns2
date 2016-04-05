@@ -129,6 +129,13 @@ public class TentativeSchedule implements Serializable, Comparable<OfferedSectio
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
+	
+	public boolean isPublished(){
+		return publishDate != null && Calendar.getInstance().after(publishDate);
+	}
+	
+	public boolean isClosed(){
+		return expireDate != null && Calendar.getInstance().after(expireDate);
+	}
 	
 }

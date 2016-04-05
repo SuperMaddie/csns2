@@ -719,13 +719,21 @@ create table pre_register_request_sections (
 create table offered_sections (
     id int8 not null,
     capacity int4,
-    day int4,
+    class_number int4,
+    course_code int4,
+    day varchar(255),
     deleted boolean,
-    start_time timestamp,
-    end_time timestamp,
+    end_time varchar(255),
     location varchar(255),
+    notes varchar(255),
     number int4 not null,
-    course_id int8 not null,
+    start_time varchar(255),
+    subject varchar(255),
+    term int4 not null,
+    title varchar(255),
+    type varchar(255),
+    units int4,
+    course_id int8,
     primary key (id)
 );
 

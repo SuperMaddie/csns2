@@ -3,116 +3,135 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="csns" uri="http://cs.calstatela.edu/csns" %>
 
-
 <script>
 $(function(){
-   $("#section\\.course option[value='${section.course.id}']").attr("selected", "selected");
-   $("#section\\.instructors option[value='${section.instructors[0].id}']").attr("selected", "selected"); 
-   
-   $("#publishDate").datepicker({
-		inline : true
-	});
-	$('#expireDate').datepicker({
-	    inline: true
-	});
-	
-    $("div.help").dialog({
-        autoOpen: false,
-        modal: true
-    });
+	try{
+    	$("textarea").each(function(){
+        	CKEDITOR.replace( $(this).attr("id"), {
+          		toolbar : "Basic",
+          		width : "70%"
+        	});
+    	});
+    }catch(ex){
+    }
 });
 
 </script>
 
 <ul id="title">
-<li><a class="bc" href="<c:url value='/department/${dept}/offeredSection/search' />">Offered Sections</a></li>
-<li><a class="bc" href="<c:url value='/department/${dept}/offeredSections?term=${term.code}' />">${department.name}</a></li>
+<li><a class="bc" href="<c:url value='/department/${dept}/preRegistration?term=${term.code}' />">Offered Sections</a></li>
+<li><a class="bc" href="<c:url value='/department/${dept}/preRegistration/manage?term=${term.code}' />">Manage Offered Sections</a></li>
 <li>New</li>
 </ul>
 
 <form:form modelAttribute="section">
 <table class="general">
 <tr>
-  <th>Term</th>
+  <th style="width:150px;">Term</th>
   <td> ${term}</td>
 </tr>
 
 <tr>
-  <th>Course</th>
+  <th>Subject</th>
   <td>
-    <form:select path="course" items="${department.courses}"
-      itemLabel="code" itemValue="id" />
+    ${department.abbreviation}
   </td>
 </tr>
 
 <tr>
-  <th>Faculty</th>
+  <th>Title</th>
   <td>
-    <form:select path="instructors" itemLabel="name" itemValue="id" multiple="false">
-        <form:option  value="">Select Instructor</form:option>
-    	<form:options items="${department.faculty}" />
-    </form:select>
+    <form:input path="sectionTitle" type="text" cssClass="forminput" />
   </td>
 </tr>
 
-<!-- <tr>
-<th>Target Standings</th>
-<td>	
-	<table style="width:70%;">
-	<tr>
-	<td  style="width:50%;">
-	<c:forEach items="${standings}" var="standing" varStatus="var">
-		<c:if test="${var.index < fn:length(standings)/2}">
-		<form:checkbox path="targetStandings" value="${standing}" id="standing-checkbox${var.index}"/> <Label for="standing-checkbox${var.index}">${standing.symbol} - ${standing.name}</Label> <br />
-		</c:if>
-	</c:forEach>
-	</td>
-	<td>
-	<c:forEach items="${standings}" var="standing" varStatus="var">
-		<c:if test="${var.index ge fn:length(standings)/2}">
-		<form:checkbox path="targetStandings" value="${standing}" id="standing-checkbox${var.index}"/> <Label for="standing-checkbox${var.index}">${standing.symbol} - ${standing.name}</Label> <br />
-		</c:if>
-	</c:forEach>
-	</td>
-	</tr>
-	</table>
-</td>
-</tr> -->
-
 <tr>
-  <th>Capacity</th>
+  <th>Course Code</th>
   <td>
-    <form:input path="capacity" type="number" cssClass="leftinput" cssStyle="width: 20%;" />
+    <form:input path="courseCode" type="number" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
 <tr>
   <th>Section Number</th>
   <td>
-  	<form:input path="number" />
+  	<form:input path="number" type="number" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
 <tr>
-  <th>Day</th>
+  <th>Class Number</th>
   <td>
-  	<form:select path="day" items="${days}" multiple="false" />
+  	<form:input path="classNumber" type="number" cssClass="mediuminput" />
   </td>
 </tr>
 
-<!-- <tr>
-  <th>Start Time</th>
+<tr>
+  <th>Day(s)</th>
   <td>
-  	<form:input path="startTime" type="time" />
+    <form:input path="day" type="text" cssClass="mediuminput" />
+  </td>
+</tr>
+
+<tr>
+<th>Start Time</th>
+  <td>
+  	<form:input path="startTime" id="startTime" type="text" cssClass="mediuminput" />
   </td>
 </tr>
 
 <tr>
   <th>End Time</th>
   <td>
-  	<form:input path="endTime" type="time" />
+  	<form:input path="endTime" id="endTime" type="text" cssClass="mediuminput" />
   </td>
-</tr> -->
+</tr>
+
+<tr>
+<th>Location</th>
+<td>
+	<form:input path="location" id="location" type="text" cssClass="mediuminput" />
+</td>
+</tr>
+
+<tr>
+  <th>Type</th>
+  <td>
+  	<form:input path="type" id="type" type="text" cssClass="mediuminput" />
+  </td>
+</tr>
+
+<tr>
+  <th>Faculty</th>
+  <td>
+    <form:select path="instructors" multiple="false" cssClass="mediuminput">
+        <form:option  value="">Select</form:option>
+    	<form:options items="${department.faculty}" itemLabel="name" itemValue="id"/>
+    </form:select>
+  </td>
+</tr>
+
+<tr>
+  <th>Units</th>
+  <td>
+    <form:input path="units" type="number" cssClass="mediuminput" />
+  </td>
+</tr>
+
+<tr>
+  <th>Notes</th>
+  <td>
+    <form:textarea path="notes" cssStyle="width: 60%;" rows="15" cols="50" />
+  </td>
+</tr>
+
+<tr>
+  <th>Capacity</th>
+  <td>
+    <form:input path="capacity" type="number" cssClass="mediuminput" />
+  </td>
+</tr>
+
 
 <tr>
 <th></th>

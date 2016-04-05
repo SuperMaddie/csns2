@@ -18,7 +18,6 @@
  */
 package csns.web.controller;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -49,9 +48,7 @@ import csns.model.academics.TentativeSchedule;
 import csns.model.academics.Term;
 import csns.model.academics.dao.DepartmentDao;
 import csns.model.academics.dao.OfferedSectionDao;
-import csns.model.academics.dao.StandingDao;
 import csns.model.academics.dao.TentativeScheduleDao;
-import csns.model.core.Day;
 import csns.model.core.User;
 import csns.security.SecurityUtils;
 import csns.web.editor.CalendarPropertyEditor;
@@ -59,7 +56,6 @@ import csns.web.editor.CoursePropertyEditor;
 import csns.web.editor.StandingPropertyEditor;
 import csns.web.editor.TermPropertyEditor;
 import csns.web.editor.UserPropertyEditor;
-import csns.web.validator.OfferedSectionValidator;
 
 @Controller
 @SessionAttributes({ "section" })
@@ -67,9 +63,6 @@ public class OfferedSectionControllerS {
 
 	@Autowired
 	private TentativeScheduleDao scheduleDao;
-	
-	@Autowired
-	private StandingDao standingDao;
 
 	@Autowired
 	private OfferedSectionDao offeredSectionDao;
@@ -80,18 +73,11 @@ public class OfferedSectionControllerS {
 	@Autowired
 	private WebApplicationContext context;
 
-	@Autowired
-	private OfferedSectionValidator offeredSectionValidator;
-
 	private static final Logger logger = LoggerFactory.getLogger(OfferedSectionControllerS.class);
 
-	private List<Day> days;
-	private List<Standing> standings;
-
 	@PostConstruct
-	public void init() {
-		days = Arrays.asList(Day.values());
-		standings = standingDao.getStandings();
+	public void init() {		
+
 	}
 
 	@InitBinder
@@ -110,8 +96,6 @@ public class OfferedSectionControllerS {
 		Department department = departmentDao.getDepartment(dept);
 		OfferedSection section = new OfferedSection();
 
-		models.put("standings", standings);
-		models.put("days", days);
 		models.put("term", term);
 		models.put("department", department);
 		models.put("section", section);
@@ -124,15 +108,17 @@ public class OfferedSectionControllerS {
 			@RequestParam Term term, SessionStatus sessionStatus, BindingResult result) {
 
 		Department department = departmentDao.getDepartment(dept);
-		offeredSectionValidator.validate(section, result);
-		if (result.hasErrors()) {
-		}
+		
+		//add validate section here
+		section.setTerm(term);
+		section.setSubject(dept.toUpperCase());
+		
 		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
 		schedule.getSections().add(section);
 
 		schedule = scheduleDao.saveSchedule(schedule);
 		
-		logger.info(SecurityUtils.getUser().getUsername() + " added section " + section.getCourse().getCode() + "-" + section.getNumber()
+		logger.info(SecurityUtils.getUser().getUsername() + " added section " + section.getSectionTitle() + "-" + section.getNumber()
 						+ " to schedule of term " + term.getShortString());
 
 		sessionStatus.setComplete();
@@ -144,9 +130,6 @@ public class OfferedSectionControllerS {
 
 		Department department = departmentDao.getDepartment(dept);
 		OfferedSection section = offeredSectionDao.getSection(id);
-
-		models.put("standings", standings);
-		models.put("days", days);
 		models.put("term", term);
 		models.put("department", department);
 		models.put("section", section);
@@ -158,7 +141,7 @@ public class OfferedSectionControllerS {
 			SessionStatus sessionStatus, BindingResult result) {
 
 		section = offeredSectionDao.saveSection(section);
-		logger.info(SecurityUtils.getUser().getUsername() + " editted section " + section.getCourse().getCode() + 
+		logger.info(SecurityUtils.getUser().getUsername() + " editted section " + section.getSectionTitle() + 
 				"-" + section.getNumber() + " of term " + term.getShortString());
 
 		sessionStatus.setComplete();
@@ -183,7 +166,7 @@ public class OfferedSectionControllerS {
 		schedule = scheduleDao.saveSchedule(schedule);
 
 		logger.info(SecurityUtils.getUser().getName() + " deleted offered section " + section.getId()
-				+ " " + section.getCourse().getCode() + "-" + section.getNumber());
+				+ " " + section.getSectionTitle() + "-" + section.getNumber());
 
 		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
 	}

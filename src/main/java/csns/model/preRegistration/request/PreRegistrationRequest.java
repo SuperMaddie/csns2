@@ -20,7 +20,7 @@ import csns.model.core.User;
 
 @Entity
 @Table(name="pre_register_requests")
-public class PreRegistrationRequest implements Serializable, Comparable<PreRegistrationRequest>{
+public class PreRegistrationRequest implements Serializable{
 
     private static final long serialVersionUID = 1L;
     
@@ -45,11 +45,6 @@ public class PreRegistrationRequest implements Serializable, Comparable<PreRegis
     
     public PreRegistrationRequest() {
 		sections = new ArrayList<>();
-	}
-	
-	@Override
-	public int compareTo(PreRegistrationRequest req) {	
-		return 0;
 	}
 
 	public Long getId() {
