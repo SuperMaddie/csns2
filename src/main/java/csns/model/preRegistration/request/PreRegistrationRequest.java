@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -16,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import csns.model.academics.OfferedSection;
+import csns.model.academics.Term;
 import csns.model.core.User;
 
 @Entity
@@ -27,6 +31,11 @@ public class PreRegistrationRequest implements Serializable{
     @Id
     @GeneratedValue
     private Long id;
+    
+    @Embedded
+    @AttributeOverrides({ @AttributeOverride(name = "code",
+        column = @Column(name = "term", nullable = false)) })
+	private Term term;
     
     @ManyToMany
     @JoinTable(name="pre_register_request_sections", joinColumns = @JoinColumn(name="request_id"),
@@ -53,6 +62,14 @@ public class PreRegistrationRequest implements Serializable{
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Term getTerm() {
+		return term;
+	}
+
+	public void setTerm(Term term) {
+		this.term = term;
 	}
 
 	public List<OfferedSection> getSections() {

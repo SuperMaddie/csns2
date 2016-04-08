@@ -20,12 +20,15 @@ package csns.web.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +55,6 @@ import csns.model.academics.Term;
 import csns.model.academics.dao.DepartmentDao;
 import csns.model.academics.dao.OfferedSectionDao;
 import csns.model.academics.dao.TentativeScheduleDao;
-import csns.model.core.User;
-import csns.model.core.dao.UserDao;
 import csns.model.preRegistration.request.PreRegistrationRequest;
 import csns.model.preRegistration.request.dao.PreRegistrationRequestDao;
 import csns.security.SecurityUtils;
@@ -64,9 +65,6 @@ import csns.web.editor.TermPropertyEditor;
 @Controller
 @SessionAttributes("section")
 public class OfferedSectionController {
-
-	@Autowired
-	private UserDao userDao;
 
 	@Autowired
 	private TentativeScheduleDao scheduleDao;
@@ -97,6 +95,29 @@ public class OfferedSectionController {
 		binder.registerCustomEditor(Course.class, (CoursePropertyEditor) context.getBean("coursePropertyEditor"));
 	}
 
+	@RequestMapping(value = "/department/{dept}/offeredSection/getRequestContent", method = RequestMethod.GET)
+	protected void getRequestContent(HttpServletRequest request, HttpServletResponse response) {
+		Long id = Long.parseLong(request.getParameter("id"));
+		PreRegistrationRequest req = requestDao.getRequest(id);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("DD/MM/yyyy");
+
+		String result = "{ \"name\" : \"" + req.getRequester().getName() + "\" , ";
+		result += " \"comment\" : \"" + req.getComment().replaceAll("(?s)<[^>]*>(\\s*<[^>]*>)*", "") + "\" , ";
+		result += " \"date\" : \"" + dateFormat.format(req.getDate()) + "\" , ";
+		result += " \"email\" : \"" + req.getRequester().getEmail() + "\" , ";
+		result += " \"cin\" : \"" + req.getRequester().getCin() + "\" } ";
+
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.write(result);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@RequestMapping("/department/{dept}/offeredSection")
 	public String view(@PathVariable String dept, @RequestParam Long id, @RequestParam(required = false) Term term,
 			ModelMap models) {
@@ -108,17 +129,14 @@ public class OfferedSectionController {
 		Department department = departmentDao.getDepartment(dept);
 		OfferedSection section = offeredSectionDao.getSection(id);
 		List<PreRegistrationRequest> requests = requestDao.getRequests(section);
-		List<User> commenters = new ArrayList<>();
-		List<String> comments = new ArrayList<>();
+		Map<Long, String> comments = new HashMap<>();
 		for (PreRegistrationRequest req : requests) {
 			if (req.getComment() != null) {
-				commenters.add(req.getRequester());
-				comments.add(req.getComment());
+				comments.put(req.getRequester().getId(), req.getComment());
 			}
 		}
 
 		models.put("comments", comments);
-		models.put("commenters", commenters);
 		models.put("requests", requests);
 		models.put("section", section);
 		models.put("department", department);
@@ -141,17 +159,18 @@ public class OfferedSectionController {
 			@RequestParam("term") Term term, HttpServletRequest request,
 			@RequestParam(value = "file", required = false) MultipartFile uploadedFile, ModelMap models,
 			SessionStatus sessionStatus) {
-		
+
 		Department department = departmentDao.getDepartment(dept);
 		int targetPage = WebUtils.getTargetPage(request, "_target", currentPage);
-		//check if sent file is not empty(if user removes the required property and sends nothing)
-		if(targetPage == 1 && uploadedFile!= null && uploadedFile.isEmpty()){
+		// check if sent file is not empty(if user removes the required property
+		// and sends nothing)
+		if (targetPage == 1 && uploadedFile != null && uploadedFile.isEmpty()) {
 			models.put("message", "This field is required.");
 			models.put("department", department);
 			models.put("term", term);
 			return "offeredSection/import0";
 		}
-		
+
 		List<OfferedSection> sections = new ArrayList<>();
 		InputStream fis;
 		Map<String, List<String>> data = new HashMap<>();
@@ -166,7 +185,7 @@ public class OfferedSectionController {
 					e.printStackTrace();
 				}
 				// create offeredSection objects and send to UI to be reviewed
-				sections = createSections(data, term);
+				sections = createSections(data, term, dept);
 				request.getSession().setAttribute("sections", sections);
 				models.put("department", department);
 				models.put("sections", sections);
@@ -181,11 +200,12 @@ public class OfferedSectionController {
 		// save sections
 		sections = (ArrayList<OfferedSection>) request.getSession().getAttribute("sections");
 		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
-		for (OfferedSection s : sections) {
-			s = sectionDao.saveSection(s);
-			schedule.getSections().add(s);
-		}
+
+		schedule.getSections().addAll(sections);
 		schedule = scheduleDao.saveSchedule(schedule);
+
+		/* link related sections */
+		linkSections(schedule.getSections());
 
 		logger.info(
 				SecurityUtils.getUser().getName() + " imported sections to schedule of term " + term.getShortString());
@@ -193,8 +213,8 @@ public class OfferedSectionController {
 		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
 	}
 
-	// create new sections from excel data
-	public List<OfferedSection> createSections(Map<String, List<String>> data, Term term) {
+	/* create new sections from excel data */
+	public List<OfferedSection> createSections(Map<String, List<String>> data, Term term, String dept) {
 
 		List<String> headers = new ArrayList<>();
 		headers.addAll(data.keySet());
@@ -205,55 +225,46 @@ public class OfferedSectionController {
 		for (int i = 0; i < count; i++) {
 			OfferedSection os = new OfferedSection();
 
-			if (!data.get("term").get(i).isEmpty()) {
-				// int code = Float.valueOf(data.get("term").get(i)).intValue();
-				// Term term = termDao.getTerm(code);
-				os.setTerm(term);
-			}
-			if (!data.get("subj").get(i).isEmpty())
+			if (data.get("subj").get(i).equalsIgnoreCase(dept)) {
 				os.setSubject(data.get("subj").get(i));
+				os.setTerm(term);
 
-			if (!data.get("cat").get(i).isEmpty())
-				os.setCourseCode(Float.valueOf(data.get("cat").get(i)).intValue());
+				if (!data.get("cat").get(i).isEmpty()) {
+					String tmp = data.get("cat").get(i).replaceAll("[^0-9]", "");
+					os.setCourseCode(Float.valueOf(tmp).intValue());
+				}
 
-			if (!data.get("sect").get(i).isEmpty())
-				os.setNumber(Float.valueOf(data.get("sect").get(i)).intValue());
+				if (!data.get("sect").get(i).isEmpty()) {
+					String tmp = data.get("cat").get(i).replaceAll("[^0-9]", "");
+					os.setNumber(Float.valueOf(tmp).intValue());
+				}
 
-			if (!data.get("class nbr").get(i).isEmpty())
-				os.setClassNumber(Float.valueOf(data.get("class nbr").get(i)).intValue());
+				if (!data.get("class nbr").get(i).isEmpty())
+					os.setClassNumber(Float.valueOf(data.get("class nbr").get(i)).intValue());
 
-			if (!data.get("title").get(i).isEmpty())
 				os.setSectionTitle(data.get("title").get(i));
-
-			if (!data.get("day").get(i).isEmpty())
 				os.setDay(data.get("day").get(i));
 
-			if (!data.get("start").get(i).isEmpty())
-				os.setStartTime(createTime(data.get("start").get(i)));
+				if (!data.get("start").get(i).isEmpty())
+					os.setStartTime(createTime(data.get("start").get(i)));
 
-			if (!data.get("end").get(i).isEmpty()) {
-				os.setEndTime(createTime(data.get("end").get(i)));
-			}
+				if (!data.get("end").get(i).isEmpty())
+					os.setEndTime(createTime(data.get("end").get(i)));
 
-			if (!data.get("bldg/room").get(i).isEmpty())
 				os.setLocation(data.get("bldg/room").get(i));
-
-			if (!data.get("type").get(i).isEmpty())
 				os.setType(data.get("type").get(i));
 
-			if (!data.get("instructor").get(i).isEmpty())
-				os.getInstructors()
-						.add(userDao.getUser(Long.valueOf(Float.valueOf(data.get("instructor").get(i)).intValue())));
+				// if (!data.get("instructor").get(i).isEmpty())
+				// os.getInstructors()
+				// .add(userDao.getUser(Long.valueOf(Float.valueOf(data.get("instructor").get(i)).intValue())));
 
-			if (!data.get("prgrss unt").get(i).isEmpty())
-				os.setUnits(Float.valueOf(data.get("prgrss unt").get(i)).intValue());
-
-			if (!data.get("notes").get(i).isEmpty())
+				if (!data.get("prgrss unt").get(i).isEmpty())
+					os.setUnits(Float.valueOf(data.get("prgrss unt").get(i)).intValue());
 				os.setNotes(data.get("notes").get(i));
 
-			sections.add(os);
-			// do nothing for available/acad group/class type/mode
-
+				sections.add(os);
+				// do nothing for available/acad group/class type/mode
+			}
 		}
 		return sections;
 	}
@@ -263,6 +274,32 @@ public class OfferedSectionController {
 		int hour = (int) (f / 1);
 		int minute = ((int) Math.ceil(f % 1 * 60)) / 5 * 5;
 		return hour + ":" + String.format("%02d", minute);
+	}
+
+	public void linkSections(List<OfferedSection> sections) {
+		OfferedSection s1, s2;
+		int i = 0;
+		int j = 1;
+		while (i < sections.size() && j < sections.size()) {
+			s1 = sections.get(i);
+			s2 = sections.get(j);
+			if (!s1.getType().equalsIgnoreCase("LEC")) {
+				i++;
+				j = i + 1;
+			} else if (s2.getType().equalsIgnoreCase("LEC")) {
+				i = j;
+				j = i + 1;
+			} else if (s1.getCourseCode() == s2.getCourseCode() && s1.getType().equalsIgnoreCase("LEC")
+					&& (s2.getType().equalsIgnoreCase("LAB") || s2.getType().equalsIgnoreCase("REC"))) {
+				s1.getLinkedSections().add(s2);
+				s1 = sectionDao.saveSection(s1);
+				s2.getLinkedSections().add(s1);
+				s2 = sectionDao.saveSection(s2);
+				j++;
+			} else {
+				j++;
+			}
+		}
 	}
 
 }

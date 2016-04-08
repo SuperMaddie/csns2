@@ -7,6 +7,12 @@
 
 <script>
 $(function(){
+	$("#comment-wraper").hide();
+	$("#content").css('overflow', 'auto');
+	$("#users-table").find("tr").click(function(){
+		getRequestContent($(this).find(":checkbox").attr("requestId"));
+	});
+	
 	$(".selectAll").click(function(){
 	    var checked = $(this).is(":checked");
     	$(this).parents("form").find(":checkbox[name='userId']").prop("checked",checked);
@@ -18,6 +24,28 @@ $(function(){
 	        window.location.href = "<c:url value='/email/compose?backUrl=/department/${dept}/preRegistration?term=${term.code}' />";
 	});
 });
+
+function getRequestContent( id ){
+	var url = "<c:url value='/department/${dept}/offeredSection/getRequestContent' />";
+	$.ajax({
+		url: url,
+		data: {
+			id: id,
+		},
+		type : 'GET',
+		success : function(data){
+			console.log(data);
+			data = JSON.parse(data);
+			$("#sidebar-name").text(data.name);
+			$("#sidebar-cin").text(data.cin);
+			$("#sidebar-email").text(data.email);
+			if(data.comment){
+				$("#comment-wraper").show();
+				$("#sidebar-comment").text(data.comment);
+			}
+		}
+	});
+}
 
 function email( userId )
 {
@@ -34,9 +62,14 @@ function email( userId )
    alt="[Email Users]" src="<c:url value='/img/icons/email_to_friend.png' />" /></a></li>
 </ul>	
 
+<c:if test="${fn:length(requests) == 0}">
+	<p>No user has applied for this section.</p>
+</c:if>
+
 <c:if test="${fn:length(requests) > 0}">
+<div class="left-content">
 <form id="users-form" action="<c:url value='/email/compose' />" method="post">
-<table class="viewtable">
+<table class="viewtable" id="users-table">
   <tr>
   	<th><input class="selectAll" type="checkbox" /></th>
     <th>CIN</th>
@@ -46,7 +79,8 @@ function email( userId )
   
   <c:forEach items="${requests}" var="req" varStatus="status">
   	<tr>
-  	<td class="center"><input type="checkbox" name="userId" value="${req.requester.id}" /></td>
+  	<td class="center"><input type="checkbox" name="userId" value="${req.requester.id}" 
+  		requestId="${req.id}"/></td>
   	<td>${req.requester.cin}</td>
   	<td>${req.requester.name}</td>
   	<td><a href="javascript:email(${req.requester.id})">${req.requester.primaryEmail}</a></td>
@@ -54,21 +88,20 @@ function email( userId )
   </c:forEach>
 </table>
 </form>
+</div>
 
-<c:if test="${fn:length(comments)>0 }">
-	<h3>Comments</h3>
-	
-	<table class="general">
-	<c:forEach items="${requests}" var="req">
-		<c:if test="${not empty req.comment}">
-			<tr>
-			<th style="width:20%;">${req.requester.name}</th>
-			<td>${req.comment}</td>
-			</tr>
-		</c:if>
-	</c:forEach>
-	</table>
-</c:if>
+<div id="sidebar" class="bordered sidebar">
+	<div class="content">
+	<label class="title">Request Details</label>
+	</div>
+	<div class="details">
+	<div class="row"><div class="label">Name:</div><label id="sidebar-name"></label></div>
+	<div class="row"><div class="label">CIN:</div><label id="sidebar-cin"></label></div>
+	<div class="row"><div class="label">Email:</div><label><a id="sidebar-email" href="javascript:email(${req.requester.id})"></a></label></div>
+	<div class="row"><div class="label">Comment:</div></div>
+	<div class="row" id="comment-wraper"><div class="textbox"><label id="sidebar-comment"></label></div></div>
+	</div>
+</div>
 
 </c:if>
 

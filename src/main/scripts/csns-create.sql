@@ -704,6 +704,7 @@ create table pre_register_requests (
     id int8 not null,
     comment varchar(255),
     date timestamp,
+    term int4 not null,
     user_id int8 not null,
     primary key (id)
 );
@@ -737,17 +738,16 @@ create table offered_sections (
     primary key (id)
 );
 
+create table offered_section_links (
+        section_id1 int8 not null,
+        section_id2 int8 not null
+);
+
 create table offered_section_instructors (
     section_id int8 not null,
     instructor_id int8 not null,
     instructor_order int4 not null,
     primary key (section_id, instructor_order)
-);
-
-create table offered_section_target_standings (
-    section_id int8 not null,
-    standing_id int8 not null,
-    primary key (section_id, standing_id)
 );
 
 
@@ -762,6 +762,8 @@ create table tentative_schedules (
     term int4 not null,
     department_id int8 not null,
     deleted boolean,
+    graduate_limit int4,
+    undergraduate_limit int4,
     primary key (id)
 );
 

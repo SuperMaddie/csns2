@@ -69,8 +69,16 @@ public class TentativeSchedule implements Serializable, Comparable<OfferedSectio
     
     @Column
     private boolean deleted;
-	
+    
+    @Column(name = "graduate_limit")
+    private int graduateLimit;
+
+    @Column(name = "undergraduate_limit")
+    private int undergraduateLimit;
+    
     public TentativeSchedule(){
+    	undergraduateLimit = 18;
+    	graduateLimit = 16;
     	sections = new ArrayList<>();
     }
     
@@ -122,6 +130,30 @@ public class TentativeSchedule implements Serializable, Comparable<OfferedSectio
 
 	public void setDepartment(Department department) {
 		this.department = department;
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	public int getGraduateLimit() {
+		return graduateLimit;
+	}
+
+	public void setGraduateLimit(int graduateLimit) {
+		this.graduateLimit = graduateLimit;
+	}
+
+	public int getUndergraduateLimit() {
+		return undergraduateLimit;
+	}
+
+	public void setUndergraduateLimit(int undergraduateLimit) {
+		this.undergraduateLimit = undergraduateLimit;
 	}
 
 	@Override

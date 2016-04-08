@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import csns.model.academics.Department;
 import csns.model.academics.OfferedSection;
+import csns.model.academics.Term;
 import csns.model.core.User;
 import csns.model.preRegistration.request.PreRegistrationRequest;
 import csns.model.preRegistration.request.dao.PreRegistrationRequestDao;
@@ -27,7 +28,7 @@ public class PreRegistrationRequestDaoImpl implements PreRegistrationRequestDao{
 
 	@Override
 	public List<PreRegistrationRequest> getRequests(Department department) {
-		String query = "select req from PreRegistrationRequest req" +
+		String query = "from PreRegistrationRequest " +
 						"where department = :department";
 		return entityManager.createQuery(query, PreRegistrationRequest.class)
 				.setParameter("department", department)
@@ -36,12 +37,23 @@ public class PreRegistrationRequestDaoImpl implements PreRegistrationRequestDao{
 
 	@Override
 	public List<PreRegistrationRequest> getRequests(User user) {
-		String query = "select req from PreRegistrationRequest req " +
-				"join req.appliedUsers user " +
-				"where user = :user";
+		String query = "from PreRegistrationRequest " +
+				"where requester = :user";
 		return entityManager.createQuery(query, PreRegistrationRequest.class)
 				.setParameter("user", user)
 				.getResultList();
+	}
+	
+	@Override
+	public PreRegistrationRequest getRequest(User user, Term term) {
+		String query = "from PreRegistrationRequest " +
+				"where requester = :user " + 
+				"and term = :term";
+		List<PreRegistrationRequest> result =  entityManager.createQuery(query, PreRegistrationRequest.class)
+				.setParameter("user", user)
+				.setParameter("term", term)
+				.getResultList();
+		return result.size() == 0 ? null : result.get(0);
 	}
 
 	@Override

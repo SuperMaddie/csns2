@@ -349,10 +349,14 @@ public class User
             && roles.contains( "ROLE_DEPT_REVIEWER_" + dept );
     }
     
-    @JsonIgnore
     public boolean isStudent()
     {
     	return !(isReviewer() || isInstructor() || isEvaluator() || isFaculty() || isAdmin());
+    }
+    
+    public boolean isStudent(String dept)
+    {
+    	return !(isReviewer(dept) || isInstructor(dept) || isEvaluator(dept) || isFaculty(dept));
     }
 
     @JsonIgnore

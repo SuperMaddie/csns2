@@ -1,5 +1,6 @@
 package csns.web.controller;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -93,38 +94,55 @@ public class PreRegistrationController {
 		
 		TentativeSchedule schedule = scheduleDao.getSchedule(department, term) != null
 				? scheduleDao.getSchedule(department, term) : new TentativeSchedule();
-
+		
 		models.put("department", department);
 		models.put("term", term);
 		models.put("terms", terms);
 		models.put("schedule", schedule);
-		return "preRegistration/list";
+		
+		if(SecurityUtils.getUser().isStudent(dept)){
+			PreRegistrationRequest request = requestDao.getRequest(SecurityUtils.getUser(), term);	
+			List<Long> ids = new ArrayList<>();
+			if(request != null){
+				for(OfferedSection s: request.getSections()){
+					ids.add(s.getId());
+				}
+			}
+			models.put("ids", ids);
+			models.put("limit", schedule.getGraduateLimit());
+			return "preRegistration/studentView";
+		}
+		return "preRegistration/view";
 	}
 	
 	@RequestMapping(value = "/department/{dept}/preRegistration", method = RequestMethod.POST)
 	public String list(@PathVariable String dept, ModelMap models, @RequestParam(required=false) Term term,
 			@RequestParam(value = "sectionId", required = false) Long ids[], 
-			@RequestParam(value="comment", required = false) String comment, SessionStatus sessionStatus) {
+			@RequestParam(value="comment", required = false) String comment) {
 		
-		//set request parameters
-		PreRegistrationRequest request = new PreRegistrationRequest();
-		request.setRequester(SecurityUtils.getUser());
-		if(comment != null && !comment.isEmpty()){
-			request.setComment(comment);
+		//--------set request parameters-------//
+		PreRegistrationRequest request = requestDao.getRequest(SecurityUtils.getUser(), term);
+		if(request == null){
+			request = new PreRegistrationRequest();
+			request.setTerm(term);
+			request.setRequester(SecurityUtils.getUser());
 		}
+		
+		request.setComment(comment);
 		request.setDate(new Date());
 		List<OfferedSection> sections = request.getSections();
+		sections.clear();
+		//add new sections
 		for(Long id : ids){
 			sections.add(sectionDao.getSection(id));
 		}
 		
 		request = preRegistrationRequestDao.saveRequest(request);
-		sessionStatus.setComplete();
 		
-		//models.put( "backUrl", "/department/" + dept + "/taken" );
-        //models.put( "message", "status.request.sent" );
-        //return "status";
-		return "redirect:/department/" + dept + "/taken";
+		models.put( "backUrl", "/section/taken" );
+        models.put( "message", "status.request.sent" );
+        return "status";
+
 	}
 	
 	

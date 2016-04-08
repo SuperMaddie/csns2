@@ -75,11 +75,6 @@ public class OfferedSectionControllerS {
 
 	private static final Logger logger = LoggerFactory.getLogger(OfferedSectionControllerS.class);
 
-	@PostConstruct
-	public void init() {		
-
-	}
-
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(Standing.class, (StandingPropertyEditor) context.getBean("standingPropertyEditor"));

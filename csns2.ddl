@@ -461,24 +461,29 @@
         primary key (section_id, instructor_order)
     );
 
+    create table offered_section_links (
+        section_id1 int8 not null,
+        section_id2 int8 not null
+    );
+
     create table offered_sections (
         id int8 not null,
         capacity int4,
         class_number int4,
         course_code int4,
-        day int4,
+        day varchar(255),
         deleted boolean,
         end_time varchar(255),
         location varchar(255),
         notes varchar(255),
         number int4 not null,
+        title varchar(255),
         start_time varchar(255),
         subject varchar(255),
         term int4 not null,
-        title varchar(255),
         type varchar(255),
         units int4,
-        course_id int8 not null,
+        course_id int8,
         primary key (id)
     );
 
@@ -491,6 +496,7 @@
         id int8 not null,
         comment varchar(255),
         date timestamp,
+        term int4 not null,
         user_id int8 not null,
         primary key (id)
     );
@@ -888,8 +894,10 @@
         id int8 not null,
         deleted boolean,
         expire_date timestamp,
+        graduate_limit int4,
         publish_date timestamp,
         term int4 not null,
+        undergraduate_limit int4,
         department_id int8 not null,
         primary key (id)
     );
@@ -1030,6 +1038,9 @@
 
     alter table mft_scores 
         add constraint UKcxmltfnit7bi608roobfafund unique (department_id, user_id, date);
+
+    alter table offered_section_links 
+        add constraint UK_659bchsagtcy2lovek06eudwh unique (section_id2);
 
     alter table offered_sections 
         add constraint UKdfwxhphxn2cl3v9sjtflexx1k unique (course_id, number);
@@ -1614,6 +1625,16 @@
     alter table offered_section_instructors 
         add constraint FKehhasa3am0og86knk3ls10jgj 
         foreign key (section_id) 
+        references offered_sections;
+
+    alter table offered_section_links 
+        add constraint FKfji2c81jce4jqxxm5jxw44k70 
+        foreign key (section_id2) 
+        references offered_sections;
+
+    alter table offered_section_links 
+        add constraint FKrjxkohlsdtswyx7ddpgv0jtwd 
+        foreign key (section_id1) 
         references offered_sections;
 
     alter table offered_sections 

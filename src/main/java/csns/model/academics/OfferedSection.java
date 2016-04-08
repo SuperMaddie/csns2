@@ -33,6 +33,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -100,6 +101,11 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 
 	@Column
 	private boolean deleted;
+	
+	@OneToMany
+	@JoinTable(name="offered_section_links", joinColumns = @JoinColumn(name = "section_id1"), 
+		inverseJoinColumns = @JoinColumn(name = "section_id2"))
+	private List<OfferedSection> linkedSections;
 
 	@ManyToOne
 	@JoinColumn(name = "course_id")
@@ -111,8 +117,9 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	public OfferedSection() {
 		number = 1;
 		capacity = 30;
-		instructors = new ArrayList<User>();
+		instructors = new ArrayList<>();
 		deleted = false;
+		linkedSections = new ArrayList<>();
 	}
 
 	@Override
@@ -123,11 +130,9 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		if (id.equals(section.id))
 			return 0;
 
-		int cmp = getCourse().getCode().compareTo(section.getCourse().getCode());
-		if (cmp != 0)
-			return cmp;
+		int cmp = getCourseCode() - section.getCourseCode();
 
-		return getNumber() - section.getNumber();
+		return cmp != 0 ? cmp : getNumber() - section.getNumber();
 	}
 
 	public Long getId() {
@@ -282,7 +287,23 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		this.requests = requests;
 	}
 	
-    public boolean isGraduate(){
+    public List<OfferedSection> getLinkedSections() {
+		return linkedSections;
+	}
+
+	public void setLinkedSections(List<OfferedSection> linkedSections) {
+		this.linkedSections = linkedSections;
+	}
+	
+	public List<Long> getLinkedSectionIds(){
+		List<Long> ids = new ArrayList<>();
+		for(OfferedSection s: this.linkedSections){
+			ids.add(s.getId());
+		}
+		return ids;
+	}
+
+	public boolean isGraduate(){
     	if(courseCode >= 5000) {
     		return true;
     	}

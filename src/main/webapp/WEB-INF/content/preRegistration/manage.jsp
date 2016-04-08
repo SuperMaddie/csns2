@@ -8,6 +8,7 @@ $(function(){
    $("#tabs").tabs({
        cache: false
    });
+   
    $("#publishDate").datepicker({
 		inline : true
 	});
@@ -43,12 +44,12 @@ function remove( id ) {
     <c:forEach var="t" items="${terms}"><option value="${t.code}">${t}</option></c:forEach>
   </select>
 </li>
-<c:if test="${not empty schedule}">
+
 <li class="align_right"><a href="<c:url value='/department/${dept}/offeredSection/offer?term=${term.code}' />" ><img alt="[Add Section]"
   title="Add Section" src="<c:url value='/img/icons/page_add.png' />" /></a></li>
 <li class="align_right"><a href="<c:url value='/department/${dept}/offeredSection/import?term=${term.code}' />" ><img alt="[Import Sections]"
   title="Import Sections" src="<c:url value='/img/icons/table_import.png' />" /></a></li>
-</c:if>
+
 </ul>
 
 <c:if test="${fn:length(schedule.sections) == 0}">
@@ -59,8 +60,8 @@ function remove( id ) {
 
 <form:form modelAttribute="schedule">
 	<div style="padding-top:10px;padding-bottom:10px;">
-	<form:input path="publishDate" cssClass="mediuminput" placeholder="Publish Date"/>
-	<form:input path="expireDate" cssClass="mediuminput" placeholder="Expire Date"/>
+	<form:input path="publishDate" cssClass="mediuminput" placeholder="Publish Date" />
+	<form:input path="expireDate" cssClass="mediuminput" placeholder="Expire Date" />
 	<input type="submit" name="submit" class="subbutton" value="Apply" />
 	</div>
 </form:form>
@@ -72,7 +73,7 @@ function remove( id ) {
 	</ul>
 	
 	<div id="undergraduate">
-	<table class="viewtable">
+	<table class="viewtable small-font">
 		<thead>
 		<tr>
 		  <th>Code</th><th>Name</th><th>Type</th><th>Instructor</th><th>Location</th><th>Time</th>
@@ -90,7 +91,7 @@ function remove( id ) {
 		  <td>
 			${section.sectionTitle}
 		  </td>
-		  <td>
+  		  <td>
 		  	${section.type}
 		  </td>
 		  <td>
@@ -104,7 +105,7 @@ function remove( id ) {
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
 		  <td>
-			<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} users applied</a>
+			<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} user(s) applied</a>
 		  </td>
 		  <td>
 		  	${section.capacity - section.requests.size()}
@@ -125,7 +126,7 @@ function remove( id ) {
 	</div><!-- end of undergraduate -->
 	
 	<div id="graduate">
-	<table class="viewtable">
+	<table class="viewtable small-font">
 		<thead>
 		<tr>
 		  <th>Code</th><th>Name</th><th>Type</th><th>Instructor</th><th>Location</th><th>Time</th>
@@ -157,7 +158,7 @@ function remove( id ) {
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
 		  <td>
-			<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} users applied</a>
+			<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} user(s) applied</a>
 		  </td>
 		  <td>
 		  	${section.capacity - section.requests.size()}

@@ -30,51 +30,61 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.hibernate.id.CompositeNestedGeneratedValueGenerator.GenerationContextLocator;
 
 @Component
 public class FileUtils {
 
-	public FileUtils() {
-	}
-
 	public Map<String, List<String>> readExcel(InputStream fis) {
 		Map<String, List<String>> result = new HashMap<>();
-		List<String> columns = new ArrayList<String>();
-
+		String[][] values = null;
+		Row row = null;
+		Cell cell = null;
 		try {
-			Workbook wb = WorkbookFactory.create(fis);
-			int i = 0;
-			int j = 0;
-			for (Sheet sheet : wb) {
-				for (Row row : sheet) {
-					j = 0;
-					for (Cell cell : row) {
-						//cell.setCellType(Cell.CELL_TYPE_STRING);
-						String s = getCellValue(cell);
-						if (i == 0) {
-							result.put(s.toLowerCase(), new ArrayList<String>());
-							columns.add(s.toLowerCase());
-						} else {
-							result.get(columns.get(j)).add(s);
-						}
-						j++;
-					}
-					i++;
-				}
+			Workbook wb = WorkbookFactory.create( fis );
+			Sheet sheet = wb.getSheetAt( 0 );
+			int rows = sheet.getPhysicalNumberOfRows();
+			int cells = sheet.getRow( 0 ).getPhysicalNumberOfCells();
+			values = new String[rows][cells];
 
+			for ( int r = 0; r < rows; r++ ) {
+				row = sheet.getRow( r );
+				if ( row != null ) {
+					for ( int c = 0; c < cells; c++ ) {
+						cell = row.getCell( c );
+						values[r][c] = getCellValue( cell );
+					}
+				}
+				System.out.print( "\n" );
 			}
+
+			for ( int c = 0; c < cells; c++ ) {
+				String key = "";
+				for ( int r = 0; r < rows; r++ ) {
+					if ( r == 0 ) {
+						key = values[r][c].toLowerCase();
+						result.put( key, new ArrayList<String>() );
+					} else {
+						result.get( key ).add( values[r][c] );
+					}
+				}
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return result;
 	}
 
-	private String getCellValue(Cell cell) {
-		switch (cell.getCellType()) {
-		case Cell.CELL_TYPE_STRING:
-			return cell.getStringCellValue();
-		case Cell.CELL_TYPE_NUMERIC:
-			return ((Double) cell.getNumericCellValue()).toString();
+	private String getCellValue( Cell cell ) {
+		if ( cell != null ) {
+			switch (cell.getCellType()) {
+				case Cell.CELL_TYPE_STRING:
+					return cell.getStringCellValue();
+				case Cell.CELL_TYPE_NUMERIC:
+					return ((Double) cell.getNumericCellValue()).toString();
+			}
 		}
 		return "";
 	}
