@@ -21,8 +21,6 @@ package csns.web.controller;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +115,7 @@ public class OfferedSectionControllerS {
 						+ " to schedule of term " + term.getShortString());
 
 		sessionStatus.setComplete();
-		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
+		return "redirect:/department/" + dept + "/preRegistration?term=" + term.getCode();
 	}
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/edit", method = RequestMethod.GET)
@@ -140,7 +138,7 @@ public class OfferedSectionControllerS {
 				"-" + section.getNumber() + " of term " + term.getShortString());
 
 		sessionStatus.setComplete();
-		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
+		return "redirect:/department/" + dept + "/preRegistration?term=" + term.getCode();
 	}
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/delete")
@@ -163,7 +161,7 @@ public class OfferedSectionControllerS {
 		logger.info(SecurityUtils.getUser().getName() + " deleted offered section " + section.getId()
 				+ " " + section.getSectionTitle() + "-" + section.getNumber());
 
-		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
+		return "redirect:/department/" + dept + "/preRegistration?term=" + term.getCode();
 	}
 
 }

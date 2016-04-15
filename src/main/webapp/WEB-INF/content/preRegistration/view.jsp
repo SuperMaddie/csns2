@@ -1,14 +1,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 
 <script>
 $(function(){
-    $( "#accordion" ).accordion();
     $("#tabs").tabs({
         cache: false
     });
-    $("table").tablesorter({sortList: [[0,0]] });
+    $("table").tablesorter({sortList: [[0,0], [1,0]] });
     $("select[name='term'] option").each(function(){
        if( $(this).val() == ${term.code}) 
            $(this).attr('selected', true);
@@ -40,6 +40,12 @@ $(function(){
     }
 });
 
+function remove( id ) {
+	var msg = "Do you want to remove this section?";
+	if( confirm(msg) ){
+		window.location.href = "<c:url value='/department/${dept}/offeredSection/delete?id=" + id + "&term=${term.code}' />"; 
+	}
+}
 </script>
 
 <ul id="title">
@@ -52,24 +58,37 @@ $(function(){
 </li>
 
 <security:authorize access="authenticated and principal.isFaculty('${dept}')">
-<li class="align_right"><a href="preRegistration/manage?term=${term.code}"><img src="<c:url value='/img/icons/table_edit.png' />" alt="[Manage Sections]" title="ManageSections"/></a></li>
+<c:if test="${not empty schedule}">
+	<li class="align_right"><a href="<c:url value='/department/${dept}/offeredSection/offer?term=${term.code}' />" ><img alt="[Add Section]"
+	  title="Add Section" src="<c:url value='/img/icons/page_add.png' />" /></a></li>
+	<li class="align_right"><a href="<c:url value='/department/${dept}/offeredSection/import?term=${term.code}' />" ><img alt="[Import Sections]"
+	  title="Import Sections" src="<c:url value='/img/icons/table_import.png' />" /></a></li>
+  	<li class="align_right"><a href="<c:url value='/department/${dept}/tentativeSchedule/edit?term=${term.code}' />" ><img alt="[Edit Section]"
+	  title="Edit Schedule" src="<c:url value='/img/icons/page_edit.png' />" /></a></li>
+</c:if>
 </security:authorize>
 </ul>
 
+<c:if test="${empty schedule}">
+<p>There is no schedule created for this term, do you want to create a schedule?</p>
+<form action="<c:url value='/department/${dept}/preRegistration/createSchedule' />" method="POST">
+	<input type="submit" name="cancel" id="cancel" value="Cancel" class="subbutton"/>
+	<input type="submit" name="create" id="create" value="Create" class="subbutton"/>
+</form>
+</c:if>
+
+<c:if test="${not empty schedule}">
 <c:choose>
 <c:when test="${schedule.closed}">
 	<p>Past Due Date</p>
 </c:when>
 
 <c:otherwise>
-<c:if test="${fn:length(schedule.sections) == 0 or not schedule.published}">
+<c:if test="${fn:length(schedule.sections) == 0}">
 	<p>Currently there are no offered sections in <b>${term}</b>.</p>
 </c:if>
 
-
-<c:if test="${fn:length(schedule.sections) > 0 and schedule.published}">
-
-<!-- Faculty View -->
+<c:if test="${fn:length(schedule.sections) > 0}">
 
 <div id="tabs">
 	<ul>
@@ -81,8 +100,8 @@ $(function(){
 	<table class="viewtable small-font">
 		<thead>
 		<tr>
-		  <th>Code</th><th>Name</th><th>Type</th><th>Units</th><th>Instructor</th><th>Location</th><th>Time</th>
-		  <th>Applied Users</th><th>Open</th>
+		  <th>Code</th><th>Section</th><th>Name</th><th>Type</th><th>Instructor</th><th>Location</th><th>Time</th>
+		  <th>Applied Users</th><th>Open</th><th>Notes</th><th></th><th></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -91,17 +110,16 @@ $(function(){
 		<tr>
 		  <td>
 		    ${section.subject} ${section.courseCode}
-		    <c:if test="${section.number != 1}">(${section.number})</c:if>
+		  </td>
+		  <td>
+		  	${section.number}
 		  </td>
 		  <td>
 			${section.sectionTitle}
 		  </td>
-		  <td>
-		  	${section.type} 
+  		  <td>
+		  	${section.type}
 		  </td>
-		  <td>
-		  	${section.units}
-	  	  </td>
 		  <td>
 			${section.instructors[0].name}
 		  </td>
@@ -113,22 +131,35 @@ $(function(){
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
 		  <td>
-		  	<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} user(s) applied</a>
+			<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} user(s) applied</a>
 		  </td>
-		  <td>${section.capacity - section.requests.size()}</td>
+		  <td>
+		  	${section.capacity - section.requests.size()}
+		  </td>
+  		  <td>
+		  	${section.notes}
+		  </td>
+		  <td class="center">
+		  	<a href="<c:url value='/department/${dept}/offeredSection/edit?id=${section.id}&term=${term.code}' />">
+		  		<img src="<c:url value='/img/icons/script_edit.png' />" alt="[Edit]" title="Edit" /></a>
+		  </td>
+		  <td class="center">
+		  	<a href="javascript:remove(${section.id})">
+		  	 <img src="<c:url value='/img/icons/delete.png' />" alt="Remove" title="Remove" /> </a>
+		  </td>
 		</tr>
 		</c:if>
 		</c:forEach>
 		</tbody>
 	</table>
-	</div><!-- end of undergrad -->
+	</div><!-- end of undergraduate -->
 	
 	<div id="graduate">
 	<table class="viewtable small-font">
 		<thead>
 		<tr>
-		  <th>Code</th><th>Name</th><th>Type</th><th>Units</th><th>Instructor</th><th>Location</th><th>Time</th>
-		  <th>Applied Users</th><th>Open</th>
+		  <th>Code</th><th>Section</th><th>Name</th><th>Type</th><th>Instructor</th><th>Location</th><th>Time</th>
+		  <th>Applied Users</th><th>Open</th><th>Notes</th><th></th><th></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -137,17 +168,16 @@ $(function(){
 		<tr>
 		  <td>
 		    ${section.subject} ${section.courseCode}
-		    <c:if test="${section.number != 1}">(${section.number})</c:if>
+		  </td>
+		  <td>
+		  	${section.number}
 		  </td>
 		  <td>
 			${section.sectionTitle}
 		  </td>
-		  <td>
-		  	${section.type} 
+  		  <td>
+		  	${section.type}
 		  </td>
-		  <td>
-		  	${section.units}
-	  	  </td>
 		  <td>
 			${section.instructors[0].name}
 		  </td>
@@ -158,10 +188,23 @@ $(function(){
 			${section.day} ${section.startTime}
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
- 			  <td>
-		  	<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} user(s) applied</a>
+		  <td>
+			<a href="<c:url value='/department/${dept}/offeredSection?id=${section.id}&term=${term.code}' />">${section.requests.size()} user(s) applied</a>
 		  </td>
-		  <td>${section.capacity - section.requests.size()}</td>
+		  <td>
+		  	${section.capacity - section.requests.size()}
+		  </td>
+   		  <td>
+		  	${section.notes}
+		  </td>
+		  <td class="center">
+		  	<a href="<c:url value='/department/${dept}/offeredSection/edit?id=${section.id}&term=${term.code}' />">
+		  		<img src="<c:url value='/img/icons/script_edit.png' />" alt="[Edit]" title="Edit" /></a>
+		  </td>
+		  <td class="center">
+		  	<a href="javascript:remove(${section.id})">
+		  	 <img src="<c:url value='/img/icons/delete.png' />" alt="Remove" title="Remove" /> </a>
+		  </td>
 		</tr>
 		</c:if>
 		</c:forEach>
@@ -174,3 +217,4 @@ $(function(){
 </c:if>
 </c:otherwise>
 </c:choose>
+</c:if>

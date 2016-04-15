@@ -347,9 +347,9 @@
         <put-attribute name="content" value="/WEB-INF/content/preRegistration/studentView.jsp" />
     </definition>
     
-    <definition name="preRegistration/manage" extends="layout.alljs">
-        <put-attribute name="title" value="Pre-Registration Manage" />
-        <put-attribute name="content" value="/WEB-INF/content/preRegistration/manage.jsp" />
+    <definition name="tentativeSchedule/edit" extends="layout.alljs">
+        <put-attribute name="title" value="Edit" />
+        <put-attribute name="content" value="/WEB-INF/content/tentativeSchedule/edit.jsp" />
     </definition>
 
 

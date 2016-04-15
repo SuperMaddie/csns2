@@ -100,7 +100,6 @@
         <security:intercept-url pattern="/rubric/**" access="authenticated and principal.instructor" />
         
         <security:intercept-url pattern="/department/*/preRegistration/**" access="authenticated" />
-        <security:intercept-url pattern="/department/*/preRegistration/manage" access="authenticated and principal.faculty" />
         <security:intercept-url pattern="/department/*/tentativeSchedule/**" access="authenticated and principal.faculty" />
 	    <security:intercept-url pattern="/department/*/offeredSection/**" access="authenticated and principal.faculty" />
         

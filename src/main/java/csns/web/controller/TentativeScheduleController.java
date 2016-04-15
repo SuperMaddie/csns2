@@ -9,27 +9,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.WebApplicationContext;
 
-import csns.model.academics.Course;
-import csns.model.academics.Standing;
+import csns.model.academics.Department;
 import csns.model.academics.TentativeSchedule;
 import csns.model.academics.Term;
 import csns.model.academics.dao.DepartmentDao;
 import csns.model.academics.dao.TentativeScheduleDao;
-import csns.model.core.User;
 import csns.security.SecurityUtils;
 import csns.web.editor.CalendarPropertyEditor;
-import csns.web.editor.CoursePropertyEditor;
-import csns.web.editor.StandingPropertyEditor;
 import csns.web.editor.TermPropertyEditor;
-import csns.web.editor.UserPropertyEditor;
 
 @Controller
+@SessionAttributes("schedule")
 public class TentativeScheduleController {
 
 	@Autowired
@@ -37,49 +35,35 @@ public class TentativeScheduleController {
 
 	@Autowired
 	private DepartmentDao departmentDao;
-	
+
 	@Autowired
 	private WebApplicationContext context;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TentativeSchedule.class);
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(Standing.class, (StandingPropertyEditor) context.getBean("standingPropertyEditor"));
 		binder.registerCustomEditor(Term.class, (TermPropertyEditor) context.getBean("termPropertyEditor"));
-		binder.registerCustomEditor(User.class, (UserPropertyEditor) context.getBean("userPropertyEditor"));
-		binder.registerCustomEditor(Course.class, (CoursePropertyEditor) context.getBean("coursePropertyEditor"));
-
 		binder.registerCustomEditor(Calendar.class, new CalendarPropertyEditor("MM/dd/yyyy"));
 	}
-	
-	@RequestMapping("/department/{dept}/tentativeSchedule/create")
-	public String create(@PathVariable String dept, @RequestParam Term term, ModelMap models) {
+
+	@RequestMapping(value = "/department/{dept}/tentativeSchedule/edit", method = RequestMethod.GET)
+	public String edit(@PathVariable String dept, @RequestParam Term term, ModelMap models) {
 		
-		TentativeSchedule schedule = new TentativeSchedule();
-		schedule.setDepartment(departmentDao.getDepartment(dept));
-		schedule.setTerm(term);
-		schedule = scheduleDao.saveSchedule(schedule);
-		
-		logger.info(SecurityUtils.getUser() + " created schedule " + schedule.getId());
-		
-		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term;
+		Department department = departmentDao.getDepartment(dept);
+		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
+		models.put("schedule", schedule);
+		models.put("term", term);
+		models.put("department", department);
+		return "tentativeSchedule/edit";
 	}
-	
-	@RequestMapping("/department/{dept}/tentativeSchedule/edit")
-	public String edit(@PathVariable String dept, @RequestParam Term term, ModelMap models, 
-			@RequestParam(required=false) Calendar publishDate, @RequestParam(required=false) Calendar expireDate) {
-		
-		TentativeSchedule schedule = scheduleDao.getSchedule(departmentDao.getDepartment(dept), term);
-		if(schedule != null && publishDate != null) {
-			schedule.setPublishDate(publishDate);
-		}
-		if(schedule != null && expireDate != null) {
-			schedule.setExpireDate(expireDate);
-		}
+
+	@RequestMapping(value = "/department/{dept}/tentativeSchedule/edit", method = RequestMethod.POST)
+	public String edit(@PathVariable String dept, ModelMap models,
+			@ModelAttribute("schedule") TentativeSchedule schedule) {
+
 		schedule = scheduleDao.saveSchedule(schedule);
 		logger.info(SecurityUtils.getUser().getUsername() + " editted schedule " + schedule.getId());
-		
-		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term;
+		return "redirect:/department/" + dept + "/preRegistration?term=" + schedule.getTerm().getCode();
 	}
 }

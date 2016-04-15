@@ -47,6 +47,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.WebUtils;
 
+import com.sun.org.apache.xml.internal.security.utils.Base64;
+
 import csns.model.academics.Course;
 import csns.model.academics.Department;
 import csns.model.academics.OfferedSection;
@@ -102,7 +104,7 @@ public class OfferedSectionController {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("DD/MM/yyyy");
 
 		String result = "{ \"name\" : \"" + req.getRequester().getName() + "\" , ";
-		result += " \"comment\" : \"" + req.getComment().replaceAll("(?s)<[^>]*>(\\s*<[^>]*>)*", "") + "\" , ";
+		result += " \"comment\" : \"" + jsonEscape(req.getComment()) + "\" , ";
 		result += " \"date\" : \"" + dateFormat.format(req.getDate()) + "\" , ";
 		result += " \"email\" : \"" + req.getRequester().getEmail() + "\" , ";
 		result += " \"cin\" : \"" + req.getRequester().getCin() + "\" } ";
@@ -116,6 +118,10 @@ public class OfferedSectionController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private String jsonEscape(String str) {
+		return str.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
 	}
 
 	@RequestMapping("/department/{dept}/offeredSection")
@@ -162,8 +168,7 @@ public class OfferedSectionController {
 
 		Department department = departmentDao.getDepartment(dept);
 		int targetPage = WebUtils.getTargetPage(request, "_target", currentPage);
-		// check if sent file is not empty(if user removes the required property
-		// and sends nothing)
+		//------ check if sent file is not empty ----//
 		if (targetPage == 1 && uploadedFile != null && uploadedFile.isEmpty()) {
 			models.put("message", "This field is required.");
 			models.put("department", department);
@@ -176,7 +181,6 @@ public class OfferedSectionController {
 		Map<String, List<String>> data = new HashMap<>();
 
 		if (request.getParameter("_finish") == null) {
-
 			if (targetPage == 1) {
 				try {
 					fis = uploadedFile.getInputStream();
@@ -184,7 +188,7 @@ public class OfferedSectionController {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				// create offeredSection objects and send to UI to be reviewed
+				//----- create offeredSection objects and send to UI to be reviewed ---//
 				sections = createSections(data, term, dept);
 				request.getSession().setAttribute("sections", sections);
 				models.put("department", department);
@@ -210,7 +214,7 @@ public class OfferedSectionController {
 		logger.info(
 				SecurityUtils.getUser().getName() + " imported sections to schedule of term " + term.getShortString());
 
-		return "redirect:/department/" + dept + "/preRegistration/manage?term=" + term.getCode();
+		return "redirect:/department/" + dept + "/preRegistration?term=" + term.getCode();
 	}
 
 	/* create new sections from excel data */
@@ -235,7 +239,7 @@ public class OfferedSectionController {
 				}
 
 				if (!data.get("sect").get(i).isEmpty()) {
-					String tmp = data.get("cat").get(i).replaceAll("[^0-9]", "");
+					String tmp = data.get("sect").get(i).replaceAll("[^0-9]", "");
 					os.setNumber(Float.valueOf(tmp).intValue());
 				}
 

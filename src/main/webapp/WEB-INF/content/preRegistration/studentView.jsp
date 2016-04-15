@@ -4,6 +4,8 @@
 
 <script>
 $(function(){
+	$("#loading").hide();
+	
     $( "#accordion" ).accordion({
     	heightStyle: 'panel', 
     	collapsible: true
@@ -11,7 +13,7 @@ $(function(){
     $("#tabs").tabs({
         cache: false
     });
-    $("table").tablesorter({sortList: [[1, 0]]});
+    $("table").tablesorter({sortList: [[1, 0],[2,0]]});
     $("select[name='term'] option").each(function(){
        if( $(this).val() == ${term.code}) 
            $(this).attr('selected', true);
@@ -22,8 +24,8 @@ $(function(){
     });
     
 	$("#student-form").submit(function(event){
-	    if( $("#student-form").find(":checkbox[name='sectionId']:checked").length  > 0 ){	    	
-	    	$("#student-form").submit();
+	    if( $("#student-form").find(":checkbox[name='sectionId']:checked").length  > 0 ){
+	    	$("#loading").show();
 	    	$("#submit").prop("disabled", true); 
 	    }
 	    else{
@@ -47,7 +49,7 @@ $(function(){
     ids.forEach(function(entry){
     	$("#student-form input[type=checkbox]").each(function(){
     		if(parseInt($(this).attr("value")) == entry){
-    			$(this).prop("checked", true);
+    			selectCourse( $(this), true);
     		}
     	});
     });
@@ -55,7 +57,9 @@ $(function(){
     $("#student-form input[type=checkbox]").click(function(){
     	var thisObj = $(this);
     	var limit = parseInt($("#student-form").attr("limit"));
-
+    	
+    	selectCourse( $(this), $(this).is(":checked") );
+		
     	//check limit for number of units
     	var checked = 0;
     	if(thisObj.is(":checked")){
@@ -69,7 +73,7 @@ $(function(){
     		});
     		
     		if(checked > limit){
-    			thisObj.prop("checked", false);
+    			selectCourse( thisObj, false );
     			notify("limit");
     		}
     	}
@@ -80,12 +84,11 @@ $(function(){
 	  		if(links.length > 1 && $(this).not(":checked")){
 	  			links.forEach(function(id){
 	 				//if lec is unchecked, uncheck all labs
-					$("#student-form input[type=checkbox][value='" + id + "']").prop("checked", false);
+					selectCourse( $("#student-form input[type=checkbox][value='" + id + "']"), false );
 	 			});
 	  		}
 	  		
-	  		$("#student-form input[type=checkbox][value='" + links[0] + "']")
-				.prop("checked", $(this).is(":checked"));
+	  		selectCourse( $("#student-form input[type=checkbox][value='" + links[0] + "']"), $(this).is(":checked"));
 			
 	  		
 	  		//handle checkbox for multiple lab/rec
@@ -94,10 +97,10 @@ $(function(){
 	  		if(parentLinks.length > 1){
 	 			parentLinks.forEach(function(id){
 	 				//if this is checked, uncheck the other labs
+	 				var checkbox = $("#student-form input[type=checkbox][value='" + id + "']");
 	 				if(thisObj.attr("value") == id);
-	 				else if($("#student-form input[type=checkbox][value='" + id + "']").is(":checked")
-	 						&& thisObj.is(":checked")){
-	 					$("#student-form input[type=checkbox][value='" + id + "']").prop("checked", false);
+	 				else if(checkbox.is(":checked") && thisObj.is(":checked")){
+	 					selectCourse( checkbox, false);
 	  				}
 	 			});
 	  		}
@@ -110,6 +113,26 @@ $(function(){
         modal: true
     });
 });
+
+
+function selectCourse( checkbox, selected ){
+	if( selected ) {
+		var clone = checkbox.closest('tr').clone();
+		var removeButton = $('#remove-template').children().first().clone();
+
+		clone.find('td:first').html( removeButton );
+		clone.prop('id', 'selected-' + checkbox.val());
+		
+		removeButton.click(function(){
+			checkbox.click();
+		});
+		
+		$('#selected-courses').append( clone );
+	} else {
+		$('#selected-' + checkbox.val()).remove();
+	}
+	checkbox.prop( "checked", selected );
+}
 
 function notify(name){
 	$("#notify-" + name).dialog("open");
@@ -140,15 +163,29 @@ function notify(name){
 
 <c:if test="${fn:length(schedule.sections) > 0 and schedule.published}">
 
-<form id="student-form" action="<c:url value='/department/${dept}/preRegistration?term=${term.code}'/>" 
+<form id="student-form" action="<c:url value='/department/${dept}/preRegistration/request?term=${term.code}'/>" 
 	method="post" limit="${limit}" ids="${ids}">
 <div id=accordion>
+	<h3>Selected Courses</h3>
+	<div>
+		<table class="viewtable small-font">
+			<thead>
+			<tr>
+			  <th></th><th>Code</th><th>Section</th><th>Name</th><th>Type</th><th>Units</th><th>Instructor</th>
+			  <th>Location</th><th>Time</th><th>Open</th>
+			</tr>
+			</thead>
+			<tbody id="selected-courses">
+			</tbody>
+		</table>
+	</div><!-- end of selected courses -->
+	
 	<h3>Undergraduate Courses</h3>
 	<div>
 		<table class="viewtable small-font">
 			<thead>
 			<tr>
-			  <th></th><th>Code</th><th>Name</th><th>Units</th><th>Instructor</th>
+			  <th></th><th>Code</th><th>Section</th><th>Name</th><th>Type</th><th>Units</th><th>Instructor</th>
 			  <th>Location</th><th>Time</th><th>Open</th>
 			</tr>
 			</thead>
@@ -160,10 +197,15 @@ function notify(name){
 			  	links="${section.linkedSectionIds}" units="${section.units}" sectionType="${section.type}" /></td>
 			  <td>
 			    ${section.subject} ${section.courseCode}
-			    <c:if test="${section.number != 1}">(${section.number})</c:if>
 			  </td>
 			  <td>
-				${section.sectionTitle} - ${section.type}
+			  	${section.number}
+			  </td>
+			  <td>
+				${section.sectionTitle}
+			  </td>
+			  <td>
+			  	${section.type}
 			  </td>
 			  <td>
 			  	${section.units}
@@ -191,7 +233,7 @@ function notify(name){
 	<table class="viewtable small-font">
 		<thead>
 		<tr>
-		  <th></th><th>Code</th><th>Name</th><th>Units</th><th>Instructor</th>
+		  <th></th><th>Code</th><th>Section</th><th>Name</th><th>Type</th><th>Units</th><th>Instructor</th>
 		  <th>Location</th><th>Time</th><th>Open</th>
 		</tr>
 		</thead>
@@ -203,10 +245,15 @@ function notify(name){
 		  	links="${section.linkedSectionIds}" units="${section.units}" sectionType="${section.type}"/></td>
 		  <td>
 		    ${section.subject} ${section.courseCode}
-		    <c:if test="${section.number != 1}">(${section.number})</c:if>
 		  </td>
 		  <td>
-			${section.sectionTitle} - ${section.type}
+		  	${section.number}
+		  </td>
+		  <td>
+			${section.sectionTitle}
+		  </td>
+		  <td>
+		  	${section.type}
 		  </td>
 		  <td>
 		  	${section.units}
@@ -232,7 +279,7 @@ function notify(name){
 
 <div class="">
 	<div class="ui-widget pre-reg-text"><h3>Add Comment</h3></div>
- 	<textarea name="comment" id="comment" rows="15" cols="50"></textarea>
+ 	<textarea name="comment" id="comment" rows="15" cols="50">${comment}</textarea>
 </div>
 
 <br><input type="submit" id="submit" value="Submit" class="subbutton">
@@ -245,3 +292,13 @@ function notify(name){
 </c:if>
 </c:otherwise>
 </c:choose>
+
+<div id="loading" class="loading">
+	<img src="<c:url value='/img/style/loading.gif' />">
+</div>
+
+<div id="remove-template" style="display: none;">
+<a href="javascript:void(0)">
+	<img src="<c:url value='/img/icons/delete.png' />" alt="Remove" title="Remove" />
+</a>
+</div>

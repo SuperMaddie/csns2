@@ -4,18 +4,6 @@
 <%@ taglib prefix="csns" uri="http://cs.calstatela.edu/csns" %>
 
 <script>
-$(function(){
-	try{
-    	$("textarea").each(function(){
-        	CKEDITOR.replace( $(this).attr("id"), {
-          		toolbar : "Basic",
-          		width : "70%"
-        	});
-    	});
-    }catch(ex){
-    }
-});
-
 function remove( id ) {
 	var msg = "Do you want to remove this section?";
 	if( confirm(msg) )
@@ -25,7 +13,6 @@ function remove( id ) {
 
 <ul id="title">
 <li><a class="bc" href="<c:url value='/department/${dept}/preRegistration?term=${term.code}' />">Offered Sections</a></li>
-<li><a class="bc" href="<c:url value='/department/${dept}/preRegistration/manage?term=${term.code}' />">Manage Offered Sections</a></li>
 <li>Edit</li>
 <li class="align_right"><a href="javascript:remove(${section.id})"><img title="Delete Section"
  alt="[Delete Section]" src="<c:url value='/img/icons/table_delete.png' />" /></a></li>
@@ -48,28 +35,28 @@ function remove( id ) {
 <tr>
   <th>Title</th>
   <td>
-    <form:input path="sectionTitle" type="text" cssClass="forminput" />
+    <form:input path="sectionTitle" type="text" cssClass="forminput" required="required"/>
   </td>
 </tr>
 
 <tr>
   <th>Course Code</th>
   <td>
-    <form:input path="courseCode" type="number" cssClass="mediuminput" required="required" />
+    <form:input path="courseCode" id="courseCode" type="number" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
 <tr>
   <th>Section Number</th>
   <td>
-  	<form:input path="number" type="number" cssClass="mediuminput" required="required" />
+  	<form:input path="number" id="number" type="number" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
 <tr>
   <th>Class Number</th>
   <td>
-  	<form:input path="classNumber" type="number" cssClass="mediuminput" />
+  	<form:input path="classNumber" id="classNumber" type="number" cssClass="mediuminput" />
   </td>
 </tr>
 
@@ -121,14 +108,14 @@ function remove( id ) {
 <tr>
   <th>Units</th>
   <td>
-    <form:input path="units" type="number" cssClass="mediuminput" />
+    <form:input path="units" id="units" type="number" cssClass="mediuminput" />
   </td>
 </tr>
 
 <tr>
   <th>Notes</th>
   <td>
-    <form:textarea path="notes" cssStyle="width: 60%;" rows="15" cols="50" />
+    <form:input path="notes" type="text" cssClass="mediuminput" />
   </td>
 </tr>
 

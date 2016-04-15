@@ -1,17 +1,24 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<script>
+	$(function(){
+		$("#loading").hide();
+		$("#sections-form").submit(function(event){
+			$("#loading").show();
+		});
+	});
+</script>
 
 <ul id="title">
 <li><a class="bc" href="<c:url value='/department/${dept}/preRegistration?term=${term.code}' />">Offered Sections</a></li>
-<li><a class="bc" href="<c:url value='/department/${dept}/preRegistration/manage?term=${term.code}' />">Manage Offered Sections</a></li>
 <li>Import Section</li>
 </ul>
 
 <div id="import">
 	<p>Please check the information to make sure everything is right.<br></p>
 	
-	<form action="<c:url value='/department/${dept}/offeredSection/import' />" method="post" 
+	<form id="sections-form" action="<c:url value='/department/${dept}/offeredSection/import' />" method="post" 
 		enctype="multipart/form-data">
 		<table class="viewtable">
 			<thead>
@@ -37,4 +44,8 @@
 		<input type="submit" name="_target0" value="Back" class="subbutton">
 		<input type="submit" name="_finish" value="Finish" class="subbutton" /></p>
 	</form>
+</div>
+
+<div id="loading" class="loading">
+	<img src="<c:url value='/img/style/loading.gif' />">
 </div>

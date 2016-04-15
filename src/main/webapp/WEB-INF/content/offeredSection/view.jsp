@@ -7,6 +7,10 @@
 
 <script>
 $(function(){
+	//$(window).scroll(function(){
+	//	$("#sidebar").stop().animate({"marginTop": ($(window).scrollTop()) + "px"}, "slow" );
+	//});
+	
 	$("#comment-wraper").hide();
 	$("#content").css('overflow', 'auto');
 	$("#users-table").find("tr").click(function(){
@@ -34,14 +38,13 @@ function getRequestContent( id ){
 		},
 		type : 'GET',
 		success : function(data){
-			console.log(data);
 			data = JSON.parse(data);
 			$("#sidebar-name").text(data.name);
 			$("#sidebar-cin").text(data.cin);
 			$("#sidebar-email").text(data.email);
 			if(data.comment){
 				$("#comment-wraper").show();
-				$("#sidebar-comment").text(data.comment);
+				$("#sidebar-comment").html(data.comment);
 			}
 		}
 	});
@@ -75,16 +78,21 @@ function email( userId )
     <th>CIN</th>
     <th>Name</th>
     <th>Email</th>
+    <th></th>
   </tr>
   
   <c:forEach items="${requests}" var="req" varStatus="status">
+  	<c:forEach var="i" begin="1" end="35">
   	<tr>
   	<td class="center"><input type="checkbox" name="userId" value="${req.requester.id}" 
   		requestId="${req.id}"/></td>
   	<td>${req.requester.cin}</td>
   	<td>${req.requester.name}</td>
   	<td><a href="javascript:email(${req.requester.id})">${req.requester.primaryEmail}</a></td>
+	<td class="center"><a href="">
+		<img src="<c:url value='/img/icons/script_edit.png' />" alt="[Edit]" title="Edit" /></a></td>
   	</tr>
+  	</c:forEach>
   </c:forEach>
 </table>
 </form>
