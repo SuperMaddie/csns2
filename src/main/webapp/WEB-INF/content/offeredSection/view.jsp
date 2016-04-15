@@ -7,9 +7,9 @@
 
 <script>
 $(function(){
-	//$(window).scroll(function(){
-	//	$("#sidebar").stop().animate({"marginTop": ($(window).scrollTop()) + "px"}, "slow" );
-	//});
+	$(window).scroll(function(){
+		$("#sidebar").css({"margin-top": ($(window).scrollTop()) + "px"});
+	});
 	
 	$("#comment-wraper").hide();
 	$("#content").css('overflow', 'auto');
@@ -82,7 +82,6 @@ function email( userId )
   </tr>
   
   <c:forEach items="${requests}" var="req" varStatus="status">
-  	<c:forEach var="i" begin="1" end="35">
   	<tr>
   	<td class="center"><input type="checkbox" name="userId" value="${req.requester.id}" 
   		requestId="${req.id}"/></td>
@@ -92,7 +91,6 @@ function email( userId )
 	<td class="center"><a href="">
 		<img src="<c:url value='/img/icons/script_edit.png' />" alt="[Edit]" title="Edit" /></a></td>
   	</tr>
-  	</c:forEach>
   </c:forEach>
 </table>
 </form>
