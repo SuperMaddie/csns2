@@ -106,12 +106,20 @@ public class OfferedSectionController {
 		JSONObject json = new JSONObject();
 		try {
 			json.put("name", req.getRequester().getName());
-			json.put("comment", req.getComment());
 			json.put("email", req.getRequester().getEmail());
 			json.put("cin", req.getRequester().getCin());
 			json.put("date", dateFormat.format(req.getDate()));
 		} catch (JSONException e1) {
 			e1.printStackTrace();
+		}
+		try{
+			json.put("comment", req.getComment());
+		}catch (JSONException e1) {
+			try {
+				json.put("comment", "");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
 
 		PrintWriter out;
@@ -169,7 +177,7 @@ public class OfferedSectionController {
 
 		Department department = departmentDao.getDepartment(dept);
 		int targetPage = WebUtils.getTargetPage(request, "_target", currentPage);
-		//------ check if sent file is not empty ----//
+		/*------ check if sent file is not empty ----*/
 		if (targetPage == 1 && uploadedFile != null && uploadedFile.isEmpty()) {
 			models.put("message", "This field is required.");
 			models.put("department", department);
@@ -189,7 +197,7 @@ public class OfferedSectionController {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				//----- create offeredSection objects and send to UI to be reviewed ---//
+				/*----- create offeredSection objects and send to UI to be reviewed ---*/
 				sections = createSections(data, term, dept);
 				request.getSession().setAttribute("sections", sections);
 				models.put("department", department);
@@ -202,7 +210,7 @@ public class OfferedSectionController {
 			}
 			return "offeredSection/import" + targetPage;
 		}
-		// save sections
+		/* save sections */
 		sections = (ArrayList<OfferedSection>) request.getSession().getAttribute("sections");
 		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
 
