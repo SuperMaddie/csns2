@@ -90,8 +90,6 @@ public class TentativeSchedule implements Serializable, Comparable<OfferedSectio
 		this.id = id;
 	}
 
-
-
 	public Term getTerm() {
 		return term;
 	}

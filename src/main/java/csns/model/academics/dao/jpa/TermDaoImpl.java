@@ -18,6 +18,7 @@
  */
 package csns.model.academics.dao.jpa;
 
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -97,6 +98,20 @@ public class TermDaoImpl implements TermDao {
 
         return entityManager.createQuery( query, Term.class )
             .setParameter( "department", department )
+            .getResultList();
+    }
+    
+    @Override
+    public List<Term> getOpenScheduledTerms( Department department )
+    {
+        String query = "select distinct s.term from TentativeSchedule s "
+            + "where s.department = :department "
+        	+ "and s.publishDate < :now "
+            + "order by s.term desc";
+
+        return entityManager.createQuery( query, Term.class )
+            .setParameter( "department", department )
+            .setParameter("now", Calendar.getInstance())
             .getResultList();
     }
 

@@ -62,27 +62,8 @@ $(function(){
     
     $("#student-form input[type=checkbox]").click(function(){
     	var thisObj = $(this);
-    	var limit = parseInt($("#student-form").attr("limit"));
     	
     	selectCourse( $(this), $(this).is(":checked") );
-		
-    	//check limit for number of units
-    	var checked = 0;
-    	if(thisObj.is(":checked")){
-    		$("#student-form input[type=checkbox]").each(function(){
-    			if($(this).is(":checked")){
-    				if($(this).attr("sectionType").toUpperCase() == "LAB" 
-    						|| $(this).attr("sectionType").toUpperCase() == "REC");
-    				else
-    					checked += parseInt($(this).attr("units"));
-    			}
-    		});
-    		
-    		if(checked > limit){
-    			selectCourse( thisObj, false );
-    			notify("limit");
-    		}
-    	}
     	
     	//check/uncheck links    	
     	var links = JSON.parse(thisObj.attr("links"));
@@ -135,10 +116,6 @@ function selectCourse( checkbox, selected ){
 	checkbox.prop( "checked", selected );
 }
 
-function notify(name){
-	$("#notify-" + name).dialog("open");
-}
-
 </script>
 
 <ul id="title">
@@ -175,8 +152,8 @@ function notify(name){
 
 <c:if test="${fn:length(schedule.sections) > 0 and schedule.published}">
 
-<form id="student-form" action="<c:url value='/department/${dept}/preRegistration/request?term=${term.code}'/>" 
-	method="post" limit="${limit}" ids="${ids}">
+<form id="student-form" action="<c:url value='/department/${dept}/preRegistration/edit?term=${term.code}&studentId=${user.id}'/>" 
+	method="post" ids="${ids}">
 <div id=accordion>
 	<h3>Selected Courses</h3>
 	<div>
@@ -289,10 +266,6 @@ function notify(name){
 	</div><!-- end of graduate -->
 </div>
 
-<div class="">
-	<div class="ui-widget pre-reg-text"><h3>Add Comment</h3></div>
- 	<textarea name="comment" id="comment" rows="15" cols="50">${comment}</textarea>
-</div>
 <br><input type="submit" id="submit" value="Submit" class="subbutton">
 </form>
 
@@ -301,10 +274,6 @@ function notify(name){
 </c:choose>
 
 </c:if><!-- End of not empty schedule -->
-
-<div id="notify-limit" class="notify">
-	<p>You are not allowed to take more than ${limit} units.</p>
-</div>
 
 <div id="loading" class="loading">
 	<img src="<c:url value='/img/style/loading.gif' />">

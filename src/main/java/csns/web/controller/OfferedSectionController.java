@@ -30,6 +30,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +48,6 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.WebUtils;
-
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import csns.model.academics.Course;
 import csns.model.academics.Department;
@@ -103,25 +103,26 @@ public class OfferedSectionController {
 		PreRegistrationRequest req = requestDao.getRequest(id);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("DD/MM/yyyy");
 
-		String result = "{ \"name\" : \"" + req.getRequester().getName() + "\" , ";
-		result += " \"comment\" : \"" + jsonEscape(req.getComment()) + "\" , ";
-		result += " \"date\" : \"" + dateFormat.format(req.getDate()) + "\" , ";
-		result += " \"email\" : \"" + req.getRequester().getEmail() + "\" , ";
-		result += " \"cin\" : \"" + req.getRequester().getCin() + "\" } ";
+		JSONObject json = new JSONObject();
+		try {
+			json.put("name", req.getRequester().getName());
+			json.put("comment", req.getComment());
+			json.put("email", req.getRequester().getEmail());
+			json.put("cin", req.getRequester().getCin());
+			json.put("date", dateFormat.format(req.getDate()));
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
 
 		PrintWriter out;
 		try {
 			out = response.getWriter();
-			out.write(result);
+			out.write(json.toString());
 			out.flush();
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private String jsonEscape(String str) {
-		return str.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
 	}
 
 	@RequestMapping("/department/{dept}/offeredSection")

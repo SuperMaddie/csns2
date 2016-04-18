@@ -347,6 +347,11 @@
         <put-attribute name="content" value="/WEB-INF/content/preRegistration/studentView.jsp" />
     </definition>
     
+    <definition name="preRegistration/edit" extends="layout.alljs">
+        <put-attribute name="title" value="Edit" />
+        <put-attribute name="content" value="/WEB-INF/content/preRegistration/edit.jsp" />
+    </definition>
+    
     <definition name="tentativeSchedule/edit" extends="layout.alljs">
         <put-attribute name="title" value="Edit" />
         <put-attribute name="content" value="/WEB-INF/content/tentativeSchedule/edit.jsp" />

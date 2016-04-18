@@ -88,7 +88,7 @@ function email( userId )
   	<td>${req.requester.cin}</td>
   	<td>${req.requester.name}</td>
   	<td><a href="javascript:email(${req.requester.id})">${req.requester.primaryEmail}</a></td>
-	<td class="center"><a href="">
+	<td class="center"><a href="<c:url value='/department/${dept}/preRegistration/edit?term=${term.code}&studentId=${req.requester.id}' />">
 		<img src="<c:url value='/img/icons/script_edit.png' />" alt="[Edit]" title="Edit" /></a></td>
   	</tr>
   </c:forEach>
