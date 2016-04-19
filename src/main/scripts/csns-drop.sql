@@ -20,6 +20,7 @@ drop table tentative_schedule_sections;
 drop table tentative_schedules;
 
 drop table offered_section_instructors;
+drop table offered_section_equivalents;
 drop table offered_section_links;
 drop table offered_sections;
 

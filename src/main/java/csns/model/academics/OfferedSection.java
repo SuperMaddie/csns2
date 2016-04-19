@@ -106,6 +106,11 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	@JoinTable(name="offered_section_links", joinColumns = @JoinColumn(name = "section_id1"), 
 		inverseJoinColumns = @JoinColumn(name = "section_id2"))
 	private List<OfferedSection> linkedSections;
+	
+	@OneToMany
+	@JoinTable(name="offered_section_equivalents", joinColumns = @JoinColumn(name = "section_id1"), 
+		inverseJoinColumns = @JoinColumn(name = "section_id2"))
+	private List<OfferedSection> equivalentSections;
 
 	@ManyToOne
 	@JoinColumn(name = "course_id")
@@ -120,6 +125,7 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		instructors = new ArrayList<>();
 		deleted = false;
 		linkedSections = new ArrayList<>();
+		equivalentSections = new ArrayList<>();
 	}
 
 	@Override
@@ -303,6 +309,22 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		return ids;
 	}
 
+	public List<OfferedSection> getEquivalentSections() {
+		return equivalentSections;
+	}
+
+	public void setEquivalentSections(List<OfferedSection> equivalentSections) {
+		this.equivalentSections = equivalentSections;
+	}
+
+	public List<Long> getEquivalentSectionIds(){
+		List<Long> ids = new ArrayList<>();
+		for(OfferedSection s: this.equivalentSections){
+			ids.add(s.getId());
+		}
+		return ids;
+	}
+	
 	public boolean isGraduate(){
     	if(courseCode >= 5000) {
     		return true;

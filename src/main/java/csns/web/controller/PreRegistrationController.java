@@ -74,7 +74,7 @@ public class PreRegistrationController {
 	@RequestMapping(value = "/department/{dept}/preRegistration", method = RequestMethod.GET)
 	public String list(@PathVariable String dept, ModelMap models, @RequestParam(required = false) Term term) {
 		Department department = departmentDao.getDepartment(dept);
-		List<Term> terms = termDao.getScheduledTerms(department);
+		List<Term> terms;
 
 		Term nextTerm = new Term().next();
 		if (term == null) {
@@ -107,19 +107,24 @@ public class PreRegistrationController {
 				models.put("limit", schedule.getGraduateLimit());
 			return "preRegistration/studentView";
 		}
-		//----- add future terms for admin/faculty ---//
-		if (!terms.contains(nextTerm)) {
-			terms.add(0, nextTerm);
-		}
-		nextTerm = nextTerm.next();
-		if (!terms.contains(nextTerm)) {
-			terms.add(0, nextTerm);
-		}
-		nextTerm = nextTerm.next();
-		if (!terms.contains(nextTerm)) {
-			terms.add(0, nextTerm);
+		
+		terms = termDao.getScheduledTerms(department);
+		//----- add future terms for admin ---//
+		if(SecurityUtils.getUser().isAdmin(dept)){
+			if (!terms.contains(nextTerm)) {
+				terms.add(0, nextTerm);
+			}
+			nextTerm = nextTerm.next();
+			if (!terms.contains(nextTerm)) {
+				terms.add(0, nextTerm);
+			}
+			nextTerm = nextTerm.next();
+			if (!terms.contains(nextTerm)) {
+				terms.add(0, nextTerm);
+			}
 		}
 		models.put("terms", terms);
+		
 
 		return "preRegistration/view";
 	}
@@ -181,6 +186,9 @@ public class PreRegistrationController {
 			@RequestParam(value = "sectionId", required = false) Long ids[],
 			@RequestParam(value = "comment", required = false) String comment) {
 
+		//---------check validity of selected courses------//
+		
+		
 		// --------set student request parameters-------//
 		PreRegistrationRequest request = requestDao.getRequest(SecurityUtils.getUser(), term);
 		if (request == null) {

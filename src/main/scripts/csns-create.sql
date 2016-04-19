@@ -743,6 +743,11 @@ create table offered_section_links (
         section_id2 int8 not null
 );
 
+create table offered_section_equivalents (
+    section_id1 int8 not null,
+    section_id2 int8 not null
+);
+
 create table offered_section_instructors (
     section_id int8 not null,
     instructor_id int8 not null,

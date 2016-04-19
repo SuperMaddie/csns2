@@ -112,9 +112,9 @@ public class OfferedSectionController {
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		try{
+		try {
 			json.put("comment", req.getComment());
-		}catch (JSONException e1) {
+		} catch (JSONException e1) {
 			try {
 				json.put("comment", "");
 			} catch (JSONException e) {
@@ -197,7 +197,9 @@ public class OfferedSectionController {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				/*----- create offeredSection objects and send to UI to be reviewed ---*/
+				/*
+				 * create offeredSection objects and send to UI to be reviewed
+				 */
 				sections = createSections(data, term, dept);
 				request.getSession().setAttribute("sections", sections);
 				models.put("department", department);
@@ -219,6 +221,8 @@ public class OfferedSectionController {
 
 		/* link related sections */
 		linkSections(schedule.getSections());
+		/* set equivalent sections */
+		setEquivalentSections(schedule.getSections());
 
 		logger.info(
 				SecurityUtils.getUser().getName() + " imported sections to schedule of term " + term.getShortString());
@@ -313,6 +317,36 @@ public class OfferedSectionController {
 				j++;
 			}
 		}
+	}
+
+	public void setEquivalentSections(List<OfferedSection> sections) {
+		OfferedSection s1, s2;
+		int i = 0;
+		int j = 1;
+		while (i < sections.size() && j < sections.size()) {
+			s1 = sections.get(i);
+			s2 = sections.get(j);
+			if (s1.getCourseCode() == s2.getCourseCode()) {
+				if (s1.getType().equalsIgnoreCase(s2.getType()) && !haveIntersection(s1.getLinkedSectionIds(), s2.getLinkedSectionIds())) {
+					s1.getEquivalentSections().add(s2);
+					s1 = sectionDao.saveSection(s1);
+					s2.getEquivalentSections().add(s1);
+					s2 = sectionDao.saveSection(s2);
+				}
+				j++;
+			} else {
+				i++;
+				j = i + 1;
+			}
+		}
+	}
+
+	public boolean haveIntersection(List<Long> list1, List<Long> list2) {
+		for (Long l1 : list1) {
+			if (list2.contains(l1))
+				return true;
+		}
+		return false;
 	}
 
 }

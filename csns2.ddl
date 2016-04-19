@@ -454,6 +454,11 @@
         primary key (id)
     );
 
+    create table offered_section_equivalents (
+        section_id1 int8 not null,
+        section_id2 int8 not null
+    );
+
     create table offered_section_instructors (
         section_id int8 not null,
         instructor_id int8 not null,
@@ -1039,6 +1044,9 @@
     alter table mft_scores 
         add constraint UKcxmltfnit7bi608roobfafund unique (department_id, user_id, date);
 
+    alter table offered_section_equivalents 
+        add constraint UK_o7vcaq2jpb14kiwdi5e6f9uxt unique (section_id2);
+
     alter table offered_section_links 
         add constraint UK_659bchsagtcy2lovek06eudwh unique (section_id2);
 
@@ -1616,6 +1624,16 @@
         add constraint FKkgtj0ajt1hio2iivq7ci2sakl 
         foreign key (topic_id) 
         references forum_topics;
+
+    alter table offered_section_equivalents 
+        add constraint FKmxbq1fc73fyv6rcbqfrh2b75b 
+        foreign key (section_id2) 
+        references offered_sections;
+
+    alter table offered_section_equivalents 
+        add constraint FK43r79xexw3tdo4cjqxl395y56 
+        foreign key (section_id1) 
+        references offered_sections;
 
     alter table offered_section_instructors 
         add constraint FKp7uvvhx5iuqpl37ol8ua8lykg 
