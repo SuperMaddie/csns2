@@ -70,11 +70,13 @@ $(function(){
     	var checked = 0;
     	if(thisObj.is(":checked")){
     		$("#student-form input[type=checkbox]").each(function(){
+    			var linksSize = JSON.parse($(this).attr("links")).length;
     			if($(this).is(":checked")){
-    				if($(this).attr("sectionType").toUpperCase() == "LAB" 
-    						|| $(this).attr("sectionType").toUpperCase() == "REC");
-    				else
+    				if(linksSize > 0 && ($(this).attr("sectionType").toUpperCase() == "LAB" 
+    						|| $(this).attr("sectionType").toUpperCase() == "REC"));
+    				else{
     					checked += parseInt($(this).attr("units"));
+    				}
     			}
     		});
     		
@@ -132,14 +134,12 @@ function selectCourse( checkbox, selected ){
 		});
 		
 		$('#selected-courses').append( clone );
-		console.log(clone);
 		
 		/* Disable all equivalent sections */
 		var equivalents = JSON.parse(checkbox.attr("equivalents"));
 		if(equivalents.length > 0){
 			equivalents.forEach(function(id){
 				var eqCheckbox = $("#student-form input[type=checkbox][value='" + id + "']");
-				console.log($("#student-form input[type=checkbox][value='" + id + "']").val());
 				eqCheckbox.attr("disabled", true);
 			});
 		}
@@ -192,6 +192,13 @@ function notify(name){
 
 
 <c:if test="${fn:length(schedule.sections) > 0 and schedule.published}">
+
+<c:if test="${not empty publishDateFormatted or not empty expireDateFormatted }">
+<div class="dates ui-widget">
+	<div class="bordered left-date" id="pubDate">Published at:  ${publishDateFormatted}</div>
+	<div class="bordered right-date" id="expireDate">Expires at:  ${expireDateFormatted}</div>
+</div>
+</c:if>
 
 <form id="student-form" action="<c:url value='/department/${dept}/preRegistration/request?term=${term.code}'/>" 
 	method="post" limit="${limit}" ids="${ids}">
@@ -251,7 +258,14 @@ function notify(name){
 				${section.day} ${section.startTime}
 					<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 			  </td>
-			  <td>${section.capacity - section.requests.size()}</td>
+			  <td>
+		  		<c:choose>
+		  		<c:when test="${section.capacity - section.requests.size() > 0}">
+		  			${section.capacity - section.requests.size()}
+		  		</c:when>
+		  		<c:otherwise> 0 </c:otherwise>
+		  		</c:choose>
+			  </td>
 			</tr>
 			</c:if>
 			</c:forEach>
@@ -299,7 +313,14 @@ function notify(name){
 			${section.day} ${section.startTime}
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
-		  <td>${section.capacity - section.requests.size()}</td>
+		  <td>
+  			<c:choose>
+	  		<c:when test="${section.capacity - section.requests.size() > 0}">
+	  			${section.capacity - section.requests.size()}
+	  		</c:when>
+	  		<c:otherwise> 0 </c:otherwise>
+	  		</c:choose>
+		  </td>
 		</tr>
 		</c:if>
 		</c:forEach>

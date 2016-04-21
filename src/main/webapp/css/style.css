@@ -1532,3 +1532,31 @@ div .content {
   margin-top: -0.5em;
   border-radius: 0.5em;
 }
+
+.dates {
+	height: 40px;
+	color: #2e6e9e;
+	font-size: 15px;
+}
+
+.left-date {
+	position: relative;
+	float: left;
+	padding-top: 8px;
+	height: 27px;
+	width: 49%;
+	text-align: center;
+	background-color: #D6EAF8;
+	border-radius: 4px;
+}
+.right-date {
+	position: relative;
+	float: right;
+	padding-top: 8px;
+	height: 27px;
+	width: 49%;
+	text-align: center;
+	background-color: #D6EAF8;
+	border-radius: 4px;
+}
+

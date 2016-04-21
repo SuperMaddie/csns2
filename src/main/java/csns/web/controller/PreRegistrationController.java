@@ -1,5 +1,6 @@
 package csns.web.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -7,6 +8,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.WebApplicationContext;
 
+import csns.model.academics.AcademicStanding;
 import csns.model.academics.Course;
 import csns.model.academics.Department;
 import csns.model.academics.OfferedSection;
@@ -63,6 +67,8 @@ public class PreRegistrationController {
 
 	@Autowired
 	private WebApplicationContext context;
+	
+	private static final Logger logger = LoggerFactory.getLogger(PreRegistrationController.class);
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -73,6 +79,8 @@ public class PreRegistrationController {
 
 	@RequestMapping(value = "/department/{dept}/preRegistration", method = RequestMethod.GET)
 	public String list(@PathVariable String dept, ModelMap models, @RequestParam(required = false) Term term) {
+		Long id = SecurityUtils.getUser().getId();
+		User user = userDao.getUser( id );
 		Department department = departmentDao.getDepartment(dept);
 		List<Term> terms = new ArrayList<>();
 
@@ -82,8 +90,16 @@ public class PreRegistrationController {
 		}
 
 		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
-		if (schedule != null)
+		if (schedule != null) {
+			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			if (schedule.getPublishDate() != null) {
+				models.put("publishDateFormatted", df.format(schedule.getPublishDate().getTime()));
+			}
+			if (schedule.getExpireDate() != null) {
+				models.put("expireDateFormatted", df.format(schedule.getExpireDate().getTime()));
+			}
 			models.put("schedule", schedule);
+		}
 		models.put("department", department);
 		models.put("term", term);
 
@@ -103,8 +119,13 @@ public class PreRegistrationController {
 			// ---- student sees list of terms with open schedules ---//
 			models.put("terms", terms);
 
-			if (schedule != null)
-				models.put("limit", schedule.getGraduateLimit());
+			if (schedule != null){
+				AcademicStanding standing = user.getCurrentStanding(department);
+				if(user.isGraduateStudent(standing))
+					models.put("limit", schedule.getGraduateLimit());
+				else
+					models.put("limit", schedule.getUndergraduateLimit());
+			}
 			return "preRegistration/studentView";
 		}
 
@@ -131,6 +152,9 @@ public class PreRegistrationController {
 
 		schedule = scheduleDao.saveSchedule(schedule);
 		status.setComplete();
+		
+		logger.info(
+				SecurityUtils.getUser().getName() + " editted schedule of term " + schedule.getTerm().getShortString());
 
 		return "redirect:/department/" + dept + "/preRegistration?term=" + schedule.getTerm().getCode();
 	}
@@ -168,6 +192,9 @@ public class PreRegistrationController {
 			schedule.setDepartment(department);
 			schedule = scheduleDao.saveSchedule(schedule);
 
+			logger.info(
+					SecurityUtils.getUser().getName() + " created schedule of term " + term.getShortString());
+			
 			models.put("department", department);
 			models.put("term", term);
 			models.put("terms", terms);
@@ -183,23 +210,6 @@ public class PreRegistrationController {
 			@RequestParam(value = "comment", required = false) String comment) {
 
 		// ---------check validity of selected courses------//
-		if (!validate(ids)) {
-			/*Department department = departmentDao.getDepartment(dept);
-			List<Term> terms;
-
-			TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
-			if (schedule != null)
-				models.put("schedule", schedule);
-			models.put("department", department);
-			models.put("term", term);
-			models.put("ids", ids);
-			models.put("comment", comment);
-			terms = termDao.getOpenScheduledTerms(department);
-			models.put("terms", terms);
-			models.put("limit", schedule.getGraduateLimit());
-			return "preRegistration/studentView";*/
-
-		}
 
 		// --------set student request parameters-------//
 		PreRegistrationRequest request = requestDao.getRequest(SecurityUtils.getUser(), term);
@@ -219,7 +229,9 @@ public class PreRegistrationController {
 		}
 
 		request = requestDao.saveRequest(request);
-
+		logger.info(
+				SecurityUtils.getUser().getName() + " pre-registered for term " + term.getShortString());
+		
 		models.put("backUrl", "/section/taken");
 		models.put("message", "status.request.sent");
 		return "status";
@@ -273,19 +285,19 @@ public class PreRegistrationController {
 		List<OfferedSection> sections = request.getSections();
 		sections.clear();
 		// ---- add new sections -------//
-		for (Long id : ids) {
-			sections.add(sectionDao.getSection(id));
+		if (ids != null) {
+			for (Long id : ids) {
+				sections.add(sectionDao.getSection(id));
+			}
 		}
 
 		request = requestDao.saveRequest(request);
+		logger.info(
+				SecurityUtils.getUser().getName() + " eddited pre-registration of " + request.getRequester().getId());
 
 		models.put("backUrl", "/department/" + dept + "/preRegistration?term=" + term.getCode());
 		models.put("message", "status.request.edited");
 		return "status";
-	}
-
-	public boolean validate(Long[] ids) {
-		return false;
 	}
 
 }

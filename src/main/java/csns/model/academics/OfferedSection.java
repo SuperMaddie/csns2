@@ -102,6 +102,9 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 	@Column
 	private boolean deleted;
 	
+	@Column 
+	private boolean repeatable;
+	
 	@OneToMany
 	@JoinTable(name="offered_section_links", joinColumns = @JoinColumn(name = "section_id1"), 
 		inverseJoinColumns = @JoinColumn(name = "section_id2"))
@@ -124,6 +127,7 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 		capacity = 30;
 		instructors = new ArrayList<>();
 		deleted = false;
+		repeatable = false;
 		linkedSections = new ArrayList<>();
 		equivalentSections = new ArrayList<>();
 	}
@@ -275,6 +279,14 @@ public class OfferedSection implements Serializable, Comparable<OfferedSection> 
 
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
+	} 
+
+	public boolean isRepeatable() {
+		return repeatable;
+	}
+
+	public void setRepeatable(boolean repeatable) {
+		this.repeatable = repeatable;
 	}
 
 	public Course getCourse() {

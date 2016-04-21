@@ -724,6 +724,7 @@ create table offered_sections (
     course_code int4,
     day varchar(255),
     deleted boolean,
+    repeatable boolean,
     end_time varchar(255),
     location varchar(255),
     notes varchar(255),

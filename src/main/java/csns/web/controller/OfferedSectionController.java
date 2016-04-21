@@ -248,7 +248,11 @@ public class OfferedSectionController {
 
 				if (!data.get("cat").get(i).isEmpty()) {
 					String tmp = data.get("cat").get(i).replaceAll("[^0-9]", "");
-					os.setCourseCode(Float.valueOf(tmp).intValue());
+					int courseCode = Float.valueOf(tmp).intValue();
+					os.setCourseCode(courseCode);
+					if (courseCode == 4540 || courseCode == 5940) {
+						os.setRepeatable(true);
+					}
 				}
 
 				if (!data.get("sect").get(i).isEmpty()) {
@@ -327,7 +331,8 @@ public class OfferedSectionController {
 			s1 = sections.get(i);
 			s2 = sections.get(j);
 			if (s1.getCourseCode() == s2.getCourseCode()) {
-				if (s1.getType().equalsIgnoreCase(s2.getType()) && !haveIntersection(s1.getLinkedSectionIds(), s2.getLinkedSectionIds())) {
+				if (!s1.isRepeatable() && !s2.isRepeatable() && s1.getType().equalsIgnoreCase(s2.getType())
+						&& !haveIntersection(s1.getLinkedSectionIds(), s2.getLinkedSectionIds())) {
 					s1.getEquivalentSections().add(s2);
 					s1 = sectionDao.saveSection(s1);
 					s2.getEquivalentSections().add(s1);

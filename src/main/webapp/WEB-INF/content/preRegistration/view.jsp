@@ -92,6 +92,14 @@ function remove( id ) {
 </c:when>
 
 <c:otherwise>
+
+<c:if test="${not empty publishDateFormatted or not empty expireDateFormatted }">
+<div class="dates ui-widget">
+	<div class="bordered left-date" id="pubDate">Published at:  ${publishDateFormatted}</div>
+	<div class="bordered right-date" id="expireDate">Expires at:  ${expireDateFormatted}</div>
+</div>
+</c:if>
+
 <div id="tabs">
 	<ul>
 	  <li><a href="#undergraduate">Undergraduate Courses</a></li>
@@ -137,7 +145,12 @@ function remove( id ) {
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
 		  <td>
-		  	${section.capacity - section.requests.size()}
+	  		<c:choose>
+	  		<c:when test="${section.capacity - section.requests.size() > 0}">
+	  			${section.capacity - section.requests.size()}
+	  		</c:when>
+	  		<c:otherwise> 0 </c:otherwise>
+	  		</c:choose>
 		  </td>
   		  <td>
 		  	${section.notes}
@@ -201,7 +214,12 @@ function remove( id ) {
 				<c:if test="${not empty section.startTime}"> - </c:if>${section.endTime}
 		  </td>
 		  <td>
-		  	${section.capacity - section.requests.size()}
+	  		<c:choose>
+	  		<c:when test="${section.capacity - section.requests.size() > 0}">
+	  			${section.capacity - section.requests.size()}
+	  		</c:when>
+	  		<c:otherwise> 0 </c:otherwise>
+	  		</c:choose>
 		  </td>
    		  <td>
 		  	${section.notes}

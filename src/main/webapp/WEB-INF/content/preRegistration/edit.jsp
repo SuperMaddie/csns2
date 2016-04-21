@@ -4,10 +4,6 @@
 
 <script>
 $(function(){
-    $("div.notify").dialog({
-        autoOpen: false,
-        modal: true
-    });
 	
 	$("#loading").hide();
 	
@@ -34,11 +30,6 @@ $(function(){
 	    	$("#loading").show();
 	    	$("#submit").prop("disabled", true); 
 	    }
-	    else{
-	    	event.preventDefault();
-			alert("You did not select any sections.");
-			return false;
-	    }
 	});
     try{
     	$("textarea").each(function(){
@@ -62,21 +53,25 @@ $(function(){
     
     $("#student-form input[type=checkbox]").click(function(){
     	var thisObj = $(this);
+    	var limit = parseInt($("#student-form").attr("limit"));
     	
     	selectCourse( $(this), $(this).is(":checked") );
     	
-    	//check/uncheck links    	
+    	//check or uncheck links    	
     	var links = JSON.parse(thisObj.attr("links"));
     	if(links.length > 0){
-	  		if(links.length > 1 && $(this).not(":checked")){
+	  		if(links.length > 1 && !thisObj.is(":checked")){
 	  			links.forEach(function(id){
-	 				//if lec is unchecked, uncheck all labs
-					selectCourse( $("#student-form input[type=checkbox][value='" + id + "']"), false );
+	  				if($("#student-form input[type=checkbox][value='" + id + "']").is(":checked"))
+						selectCourse( $("#student-form input[type=checkbox][value='" + id + "']"), false );
 	 			});
+	  		}else if(links.length > 1 && thisObj.is(":checked") && !$("#student-form input[type=checkbox][value='" + links[0] + "']").is(":checked")){
+	  			selectCourse( $("#student-form input[type=checkbox][value='" + links[0] + "']"), true );
+	  		}else if(links.length == 1 && thisObj.is(":checked") && !$("#student-form input[type=checkbox][value='" + links[0] + "']").is(":checked")){
+	  			selectCourse( $("#student-form input[type=checkbox][value='" + links[0] + "']"), true);
+	  		}else if(links.length == 1 && !thisObj.is(":checked") && $("#student-form input[type=checkbox][value='" + links[0] + "']").is(":checked")){
+	  			selectCourse( $("#student-form input[type=checkbox][value='" + links[0] + "']"), false);
 	  		}
-	  		
-	  		selectCourse( $("#student-form input[type=checkbox][value='" + links[0] + "']"), $(this).is(":checked"));
-			
 	  		
 	  		//handle checkbox for multiple lab/rec
 	  		var parent = $("#student-form input[type=checkbox][value='" + links[0] + "']");
@@ -86,7 +81,7 @@ $(function(){
 	 				//if this is checked, uncheck the other labs
 	 				var checkbox = $("#student-form input[type=checkbox][value='" + id + "']");
 	 				if(thisObj.attr("value") == id);
-	 				else if(checkbox.is(":checked") && thisObj.is(":checked")){
+	 				else if(thisObj.is(":checked") && checkbox.is(":checked")){
 	 					selectCourse( checkbox, false);
 	  				}
 	 			});
@@ -110,8 +105,27 @@ function selectCourse( checkbox, selected ){
 		});
 		
 		$('#selected-courses').append( clone );
+		console.log(clone);
+		
+		/* Disable all equivalent sections */
+		var equivalents = JSON.parse(checkbox.attr("equivalents"));
+		if(equivalents.length > 0){
+			equivalents.forEach(function(id){
+				var eqCheckbox = $("#student-form input[type=checkbox][value='" + id + "']");
+				console.log($("#student-form input[type=checkbox][value='" + id + "']").val());
+				eqCheckbox.attr("disabled", true);
+			});
+		}
 	} else {
 		$('#selected-' + checkbox.val()).remove();
+		/* Enable all equivalent sections */
+		var equivalents = JSON.parse(checkbox.attr("equivalents"));
+		if(equivalents.length > 0){
+			equivalents.forEach(function(id){
+				var eqCheckbox = $("#student-form input[type=checkbox][value='" + id + "']");
+				eqCheckbox.removeAttr("disabled");
+			});
+		}
 	}
 	checkbox.prop( "checked", selected );
 }
@@ -134,11 +148,7 @@ function selectCourse( checkbox, selected ){
 	<p>Currently there are no schedules available.</p>
 </c:if>
 
-<c:if test="${fn:length(terms) > 0 and empty schedule}"><!-- if schedule is null (not created yet) -->
-	<p>Currently there is no schedule available for <b>${term}</b>.</p>
-</c:if>
-
-<c:if test="${fn:length(terms) > 0 and not empty schedule}">
+<c:if test="${fn:length(terms) > 0}">
 <c:choose>
 <c:when test="${schedule.closed}">
 	<p>Past Due Date</p>
@@ -151,6 +161,13 @@ function selectCourse( checkbox, selected ){
 
 
 <c:if test="${fn:length(schedule.sections) > 0 and schedule.published}">
+
+<c:if test="${not empty publishDateFormatted or not empty expireDateFormatted }">
+<div class="dates ui-widget">
+	<div class="bordered left-date" id="pubDate">Published at:  ${publishDateFormatted}</div>
+	<div class="bordered right-date" id="expireDate">Expires at:  ${expireDateFormatted}</div>
+</div>
+</c:if>
 
 <form id="student-form" action="<c:url value='/department/${dept}/preRegistration/edit?term=${term.code}&studentId=${user.id}'/>" 
 	method="post" ids="${ids}">
@@ -183,7 +200,8 @@ function selectCourse( checkbox, selected ){
 			<c:if test="${ not section.isGraduate()}">
 			<tr>
 			  <td class="center"><input type="checkbox" name="sectionId" value="${section.id}" 
-			  	links="${section.linkedSectionIds}" units="${section.units}" sectionType="${section.type}" /></td>
+			  	links="${section.linkedSectionIds}" equivalents="${section.equivalentSectionIds}" 
+			  	units="${section.units}" sectionType="${section.type}" /></td>
 			  <td>
 			    ${section.subject} ${section.courseCode}
 			  </td>
@@ -265,7 +283,6 @@ function selectCourse( checkbox, selected ){
 	</table>
 	</div><!-- end of graduate -->
 </div>
-
 <br><input type="submit" id="submit" value="Submit" class="subbutton">
 </form>
 

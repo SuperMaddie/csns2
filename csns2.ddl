@@ -482,6 +482,7 @@
         location varchar(255),
         notes varchar(255),
         number int4 not null,
+        repeatable boolean,
         title varchar(255),
         start_time varchar(255),
         subject varchar(255),
