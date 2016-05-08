@@ -56,7 +56,7 @@
                 <prop key="MailException">exception/email</prop>
             </props>
         </property>
-        <property name="defaultErrorView" value="exception/default" />
+        <!--  <property name="defaultErrorView" value="exception/default" />  -->
     </bean>
 
     <!-- See http://duckranger.com/2012/11/add-conversation-support-to-spring-mvc/ -->

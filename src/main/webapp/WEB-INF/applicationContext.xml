@@ -144,6 +144,8 @@
         <security:intercept-url pattern="/file/**" access="authenticated" />
         <security:intercept-url pattern="/ckeditor/**" access="authenticated" />
         <security:intercept-url pattern="/subscription/**" access="authenticated" />
+        
+        <security:intercept-url pattern="/api/department/survey/list/**" access="permitAll"/>
     </security:http>
 
     <security:global-method-security pre-post-annotations="enabled" />
