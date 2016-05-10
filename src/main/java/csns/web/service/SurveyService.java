@@ -25,6 +25,7 @@ import csns.model.qa.ChoiceQuestion;
 import csns.model.qa.Question;
 import csns.model.qa.QuestionSection;
 import csns.model.qa.QuestionSheet;
+import csns.model.qa.TextQuestion;
 import csns.model.survey.Survey;
 import csns.model.survey.dao.SurveyDao;
 
@@ -44,19 +45,18 @@ public class SurveyService {
 		
 		/*--------------- Test data --------------*/
 		Survey testSurvey = new Survey();
-		User user = new User();
-		user.setFirstName("Maddie");
-		user.setCin("1111");
-		testSurvey.setId(1L);
-		testSurvey.setName("test");
+		testSurvey.setName("survey1");
 		QuestionSheet questionSheet = new QuestionSheet();
-		questionSheet.setDescription("aaaaa");
+		questionSheet.setDescription("This is a test question sheet.");
 		List<QuestionSection> sections = new ArrayList<>();
 		QuestionSection section = new QuestionSection();
 		section.setDescription("section1");
 		List<Question> questions = new ArrayList<>();
 		Question question = new ChoiceQuestion();
 		question.setDescription("choice question1");
+		questions.add(question);
+		question = new TextQuestion();
+		question.setDescription("text question1");
 		questions.add(question);
 		section.setQuestions(questions);
 		sections.add(section);
