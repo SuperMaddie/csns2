@@ -20,6 +20,13 @@ package csns.web.service;
 
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +34,7 @@ import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import csns.model.core.User;
@@ -36,38 +44,79 @@ import csns.model.core.dao.UserDao;
 @SuppressWarnings("deprecation")
 public class UserService {
 
-    @Autowired
-    private UserDao userDao;
+	@Autowired
+	private UserDao userDao;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-    private static final Logger logger = LoggerFactory.getLogger( UserService.class );
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @RequestMapping("/service/user/login")
-    public String login( @RequestParam String username,
-        @RequestParam String password, ModelMap models )
-    {
-        User user = userDao.getUserByUsername( username );
-        if( user == null
-            || !passwordEncoder.encodePassword( password, null ).equals(
-                user.getPassword() ) )
-        {
-            logger.info( "Username or password does not match for " + username );
-            user = null;
-        }
-        else
-        {
-            logger.info( "Credentials verified for " + username );
-            if( user.getAccessKey() == null )
-            {
-                user.setAccessKey( UUID.randomUUID().toString() );
-                user = userDao.saveUser( user );
-                logger.info( "Access key generated for " + username );
-            }
-        }
-        models.put( "user", user );
-        return "jsonView";
-    }
+	byte[] key = null;
+	
+	@PostConstruct
+	public void init() {
+		key = Base64.decodeBase64("dEusvsOKeGZwI2Ybuv1wZA==".getBytes());
+	}
+
+	@RequestMapping("/service/user/login2")
+	public String login2(@RequestParam String username, @RequestParam String password, ModelMap models) {
+		User user = userDao.getUserByUsername(username);
+		if (user == null || !passwordEncoder.encodePassword(password, null).equals(user.getPassword())) {
+			logger.info("Username or password does not match for " + username);
+			user = null;
+		} else {
+			logger.info("Credentials verified for " + username);
+			if (user.getAccessKey() == null) {
+				user.setAccessKey(UUID.randomUUID().toString());
+				user = userDao.saveUser(user);
+				logger.info("Access key generated for " + username);
+			}
+		}
+		models.put("user", user);
+		return "jsonView";
+	}
+
+	@RequestMapping(value="/service/user/login", method=RequestMethod.POST)
+	public String login(@RequestParam String username, @RequestParam String password, ModelMap models) {
+		/* check user name and password, if valid, create a token */
+		String status = "200";
+		String token = "";
+
+		User user = userDao.getUserByUsername(username);
+		if (user == null || !passwordEncoder.encodePassword(password, null).equals(user.getPassword())) {
+			logger.info("Username or password does not match for " + username);
+			status = "401";
+		} else {
+			token = issueToken(user.getCin(), username);
+		}
+
+		models.put("status", status);
+		models.put("token", token);
+		return "jsonView";
+	}
+
+	public String issueToken(String cin, String username) {
+
+		try {
+			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+			keyGen.init(128);
+
+			SecretKey secKey = new SecretKeySpec(key, 0, key.length, "AES");
+			String randomKey = new String(keyGen.generateKey().getEncoded());
+
+			Cipher aesCipher = Cipher.getInstance("AES");
+
+			byte[] byteText = (username + "\n" + cin + "\n" + randomKey).getBytes();
+
+			aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
+			byte[] byteCipherText = aesCipher.doFinal(byteText);
+
+			return new String(Base64.encodeBase64(byteCipherText));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }
