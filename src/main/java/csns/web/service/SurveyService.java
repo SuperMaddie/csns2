@@ -66,7 +66,7 @@ public class SurveyService {
 		key = Base64.decodeBase64("dEusvsOKeGZwI2Ybuv1wZA==".getBytes());
 	}
 
-	@RequestMapping("/service/survey/list")
+	@RequestMapping("	")
 	public String list(ModelMap models, @RequestParam(name = "dept") String dept,
 			@RequestParam(name = "token") String token) {
 
@@ -82,6 +82,8 @@ public class SurveyService {
 			QuestionSheet questionSheet = new QuestionSheet();
 			questionSheet.setDescription("This is a test question sheet.");
 			List<QuestionSection> sections = new ArrayList<>();
+
+			/*add section 1*/
 			QuestionSection section = new QuestionSection();
 			section.setDescription("section1");
 			List<Question> questions = new ArrayList<>();
@@ -103,6 +105,51 @@ public class SurveyService {
 			questions.add(question2);
 			section.setQuestions(questions);
 			sections.add(section);
+			
+			/*add section 2*/
+			questions = new ArrayList<>();
+			section = new QuestionSection();
+			section.setDescription("section2");
+			questions = new ArrayList<>();
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take?");
+			@SuppressWarnings("serial")
+			List<String> choices2 = new ArrayList<String>() {
+				{
+					add("CS203");
+					add("CS450");
+					add("CS560");
+					add("CS580");
+				}
+			};
+			question1.setChoices(choices2);
+			questions.add(question1);
+			
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take?");
+			@SuppressWarnings("serial")
+			List<String> choices3 = new ArrayList<String>() {
+				{
+					add("CS412");
+					add("CS320");
+					add("CS520");
+					add("CS570");
+				}
+			};
+			question1.setChoices(choices3);
+			questions.add(question1);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your cin here.");
+			questions.add(question2);
+			
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your start year.");
+			questions.add(question2);
+			
+			section.setQuestions(questions);
+			sections.add(section);
+			
 			questionSheet.setSections(sections);
 			testSurvey.setQuestionSheet(questionSheet);
 			openSurveys.add(testSurvey);
