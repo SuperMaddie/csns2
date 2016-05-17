@@ -66,7 +66,7 @@ public class SurveyService {
 		key = Base64.decodeBase64("dEusvsOKeGZwI2Ybuv1wZA==".getBytes());
 	}
 
-	@RequestMapping("	")
+	@RequestMapping("/service/survey/list")
 	public String list(ModelMap models, @RequestParam(name = "dept") String dept,
 			@RequestParam(name = "token") String token) {
 
