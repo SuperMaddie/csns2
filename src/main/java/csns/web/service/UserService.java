@@ -30,17 +30,20 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import csns.model.core.User;
 import csns.model.core.dao.UserDao;
+import csns.security.ServiceTokenUtils;
 
-@Controller
+@RestController
 @SuppressWarnings("deprecation")
 public class UserService {
 
@@ -48,12 +51,15 @@ public class UserService {
 	private UserDao userDao;
 
 	@Autowired
+	private ServiceTokenUtils tokenUtils;
+
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	byte[] key = null;
-	
+
 	@PostConstruct
 	public void init() {
 		key = Base64.decodeBase64("dEusvsOKeGZwI2Ybuv1wZA==".getBytes());
@@ -77,23 +83,23 @@ public class UserService {
 		return "jsonView";
 	}
 
-	@RequestMapping(value="/service/user/login", method=RequestMethod.POST)
-	public String login(@RequestParam String username, @RequestParam String password, ModelMap models) {
-		/* check user name and password, if valid, create a token */
-		String status = "200";
-		String token = "";
+	@RequestMapping(value = "/service/user/login", method = RequestMethod.GET)
+	public ResponseEntity<String> login(@RequestParam(name = "username") String username,
+			@RequestParam(name = "password") String password, ModelMap models) {
+
+		/*check user name and password, if valid, create a token*/
 
 		User user = userDao.getUserByUsername(username);
 		if (user == null || !passwordEncoder.encodePassword(password, null).equals(user.getPassword())) {
 			logger.info("Username or password does not match for " + username);
-			status = "401";
-		} else {
-			token = issueToken(user.getCin(), username);
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		}
 
-		models.put("status", status);
-		models.put("token", token);
-		return "jsonView";
+		/*Reload password post-authentication so we can generate token*/
+		String token = this.tokenUtils.generateToken(user);
+
+		/* Return the token*/
+		return ResponseEntity.ok(token);
 	}
 
 	public String issueToken(String cin, String username) {
