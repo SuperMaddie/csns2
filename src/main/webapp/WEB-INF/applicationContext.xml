@@ -60,7 +60,7 @@
     
         <!-- =====API======= -->
        
-     <security:http pattern="/service/**" use-expressions="true" auto-config="false" 
+    <security:http pattern="/service/**" use-expressions="true" auto-config="false" 
     	create-session="stateless" entry-point-ref="serviceAuthenticationEntryPoint">
     	<security:csrf disabled="true"/>
 	    <security:custom-filter ref="authenticationTokenFilter" position="FORM_LOGIN_FILTER" />

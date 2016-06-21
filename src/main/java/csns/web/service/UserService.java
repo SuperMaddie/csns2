@@ -88,7 +88,6 @@ public class UserService {
 			@RequestParam(name = "password") String password, ModelMap models) {
 
 		/*check user name and password, if valid, create a token*/
-
 		User user = userDao.getUserByUsername(username);
 		if (user == null || !passwordEncoder.encodePassword(password, null).equals(user.getPassword())) {
 			logger.info("Username or password does not match for " + username);
