@@ -21,6 +21,7 @@ package csns.web.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -76,9 +77,163 @@ public class SurveyService {
 	public String list(ModelMap models, @RequestParam(name = "dept") String dept) {
 
 		Department department = departmentDao.getDepartment(dept);
-
-		List<Survey> openSurveys = null;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User) authentication.getPrincipal();
+		
+		List<Survey> openSurveys = new ArrayList<>();
 		openSurveys = surveyDao.getOpenSurveys(department);
+		
+		if(openSurveys.size() == 0) {
+			/*--------------- Test data --------------*/
+			Survey testSurvey = new Survey();
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.DATE, 3);
+			testSurvey.setCloseDate(c);
+			testSurvey.setDepartment(department);
+			testSurvey.setName("survey1");
+			testSurvey.setAuthor(user);
+			testSurvey.setDate(new Date());
+			QuestionSheet questionSheet = new QuestionSheet();
+			questionSheet.setDescription("This is a test question sheet.");
+			List<QuestionSection> sections = new ArrayList<>();
+
+			/* add section 1 */
+			QuestionSection section = new QuestionSection();
+			section.setDescription("section1");
+			List<Question> questions = new ArrayList<>();
+			ChoiceQuestion question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take?");
+			@SuppressWarnings("serial")
+			List<String> choices = new ArrayList<String>() {
+				{
+					add("CS101");
+					add("CS202");
+					add("CS400");
+				}
+			};
+			question1.setChoices(choices);
+			questions.add(question1);
+
+			TextQuestion question2 = new TextQuestion();
+			question2.setDescription("Enter your email address here.");
+			questions.add(question2);
+			section.setQuestions(questions);
+			sections.add(section);
+
+			/* add section 2 */
+			questions = new ArrayList<>();
+			section = new QuestionSection();
+			section.setDescription("section2");
+			questions = new ArrayList<>();
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take?");
+			@SuppressWarnings("serial")
+			List<String> choices2 = new ArrayList<String>() {
+				{
+					add("CS203");
+					add("CS450");
+					add("CS560");
+					add("CS580");
+				}
+			};
+			question1.setChoices(choices2);
+			questions.add(question1);
+
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take?");
+			@SuppressWarnings("serial")
+			List<String> choices3 = new ArrayList<String>() {
+				{
+					add("CS412");
+					add("CS320");
+					add("CS520");
+					add("CS570");
+				}
+			};
+			question1.setChoices(choices3);
+			questions.add(question1);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your cin here.");
+			questions.add(question2);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your start year.");
+			questions.add(question2);
+
+			section.setQuestions(questions);
+			sections.add(section);
+
+			questionSheet.setSections(sections);
+			testSurvey.setQuestionSheet(questionSheet);
+			
+			testSurvey = surveyDao.saveSurvey(testSurvey);
+			
+			openSurveys.add(testSurvey);
+			
+			/*----------test survey 2------------------*/
+			
+			testSurvey = new Survey();
+			c = Calendar.getInstance();
+			c.add(Calendar.DATE, 3);
+			testSurvey.setCloseDate(c);
+			testSurvey.setDepartment(department);
+			testSurvey.setName("survey2");
+			testSurvey.setAuthor(user);
+			testSurvey.setDate(new Date());
+			questionSheet = new QuestionSheet();
+			questionSheet.setDescription("Another test question sheet.");
+			sections = new ArrayList<>();
+
+			/* add section 1 */
+			section = new QuestionSection();
+			section.setDescription("section1");
+			questions = new ArrayList<>();
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take???");
+			question1.setChoices(choices);
+			questions.add(question1);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your email address here???");
+			questions.add(question2);
+			section.setQuestions(questions);
+			sections.add(section);
+
+			/* add section 2 */
+			questions = new ArrayList<>();
+			section = new QuestionSection();
+			section.setDescription("section2");
+			questions = new ArrayList<>();
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take???");
+			question1.setChoices(choices2);
+			questions.add(question1);
+
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take???");
+			question1.setChoices(choices3);
+			questions.add(question1);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your cin here???");
+			questions.add(question2);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your start year???");
+			questions.add(question2);
+
+			section.setQuestions(questions);
+			sections.add(section);
+
+			questionSheet.setSections(sections);
+			testSurvey.setQuestionSheet(questionSheet);
+			
+			testSurvey = surveyDao.saveSurvey(testSurvey);
+			
+			openSurveys.add(testSurvey);
+			/*-----------------------------------------*/
+		}
 
 		models.put("surveys", openSurveys);
 		return "jsonView";
