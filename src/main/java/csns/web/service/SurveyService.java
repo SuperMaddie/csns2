@@ -80,16 +80,17 @@ public class SurveyService {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User) authentication.getPrincipal();
 		
-		List<Survey> openSurveys = new ArrayList<>();
+		List<Survey> openSurveys = null;
 		openSurveys = surveyDao.getOpenSurveys(department);
 		
-		if(openSurveys.size() == 0) {
+		if(openSurveys != null && openSurveys.size() == 0) {
 			/*--------------- Test data --------------*/
 			Survey testSurvey = new Survey();
-			Calendar c = Calendar.getInstance();
-			testSurvey.setPublishDate(c);
-			c.add(Calendar.DATE, 3);
-			testSurvey.setCloseDate(c);
+			Calendar publishDate = Calendar.getInstance();
+			testSurvey.setPublishDate(publishDate);
+			Calendar closeDate = Calendar.getInstance();
+			closeDate.add(Calendar.DATE, 3);
+			testSurvey.setCloseDate(closeDate);
 			testSurvey.setDepartment(department);
 			testSurvey.setName("survey1");
 			testSurvey.setAuthor(user);
@@ -175,10 +176,8 @@ public class SurveyService {
 			/*----------test survey 2------------------*/
 			
 			testSurvey = new Survey();
-			c = Calendar.getInstance();
-			testSurvey.setPublishDate(c);
-			c.add(Calendar.DATE, 3);
-			testSurvey.setCloseDate(c);
+			testSurvey.setPublishDate(publishDate);
+			testSurvey.setCloseDate(closeDate);
 			testSurvey.setDepartment(department);
 			testSurvey.setName("survey2");
 			testSurvey.setAuthor(user);
