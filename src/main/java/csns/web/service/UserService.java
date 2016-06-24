@@ -21,12 +21,6 @@ package csns.web.service;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +52,8 @@ public class UserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-	byte[] key = null;
-
 	@PostConstruct
 	public void init() {
-		key = Base64.decodeBase64("dEusvsOKeGZwI2Ybuv1wZA==".getBytes());
 	}
 
 	@RequestMapping("/service/user/login2")
@@ -99,29 +90,6 @@ public class UserService {
 
 		/* Return the token*/
 		return ResponseEntity.ok(token);
-	}
-
-	public String issueToken(String cin, String username) {
-
-		try {
-			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-			keyGen.init(128);
-
-			SecretKey secKey = new SecretKeySpec(key, 0, key.length, "AES");
-			String randomKey = new String(keyGen.generateKey().getEncoded());
-
-			Cipher aesCipher = Cipher.getInstance("AES");
-
-			byte[] byteText = (username + "\n" + cin + "\n" + randomKey).getBytes();
-
-			aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
-			byte[] byteCipherText = aesCipher.doFinal(byteText);
-
-			return new String(Base64.encodeBase64(byteCipherText));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 }
