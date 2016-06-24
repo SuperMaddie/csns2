@@ -87,6 +87,7 @@ public class SurveyService {
 			/*--------------- Test data --------------*/
 			Survey testSurvey = new Survey();
 			Calendar c = Calendar.getInstance();
+			testSurvey.setPublishDate(c);
 			c.add(Calendar.DATE, 3);
 			testSurvey.setCloseDate(c);
 			testSurvey.setDepartment(department);
@@ -175,6 +176,7 @@ public class SurveyService {
 			
 			testSurvey = new Survey();
 			c = Calendar.getInstance();
+			testSurvey.setPublishDate(c);
 			c.add(Calendar.DATE, 3);
 			testSurvey.setCloseDate(c);
 			testSurvey.setDepartment(department);
