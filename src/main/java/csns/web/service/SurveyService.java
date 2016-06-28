@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -83,7 +85,7 @@ public class SurveyService {
 		List<Survey> openSurveys = null;
 		openSurveys = surveyDao.getOpenSurveys(department);
 		
-		if(openSurveys != null && openSurveys.size() == 0) {
+		if(openSurveys == null || openSurveys.size() == 0) {
 			/*--------------- Test data --------------*/
 			Survey testSurvey = new Survey();
 			Calendar publishDate = Calendar.getInstance();
@@ -104,7 +106,9 @@ public class SurveyService {
 			section.setDescription("section1");
 			List<Question> questions = new ArrayList<>();
 			ChoiceQuestion question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following courses you are going to take?");
+			question1.setMaxSelections(1);
+			question1.setMinSelections(1);
+			question1.setDescription("Which of the <i>following</i> <b>courses</b> you are going to take?");
 			@SuppressWarnings("serial")
 			List<String> choices = new ArrayList<String>() {
 				{
@@ -128,6 +132,7 @@ public class SurveyService {
 			section.setDescription("section2");
 			questions = new ArrayList<>();
 			question1 = new ChoiceQuestion();
+			question1.setMaxSelections(1);
 			question1.setDescription("Which of the following courses you are going to take?");
 			@SuppressWarnings("serial")
 			List<String> choices2 = new ArrayList<String>() {
@@ -235,7 +240,16 @@ public class SurveyService {
 			openSurveys.add(testSurvey);
 			/*-----------------------------------------*/
 		}
+		
+		Map<Long, Integer> sectionIndices = new HashMap<>();
+		for(Survey survey: openSurveys){
+			List<QuestionSection> sections = survey.getQuestionSheet().getSections();
+			for(int i = 0; i<sections.size(); i++){
+				sectionIndices.put(sections.get(i).getId(), i);
+			}
+		}
 
+		models.put("sectionIndices", sectionIndices);
 		models.put("surveys", openSurveys);
 		return "jsonView";
 	}
@@ -261,8 +275,10 @@ public class SurveyService {
 			JSONObject jsonObject = new JSONObject(buffer.toString());
 			SurveyResponse response = getResponseFromJson(jsonObject, user);
 			/* save response */
-			response = surveyResponseDao.saveSurveyResponse(response);
-			System.out.println(response.getId());
+			if(response != null){
+				response = surveyResponseDao.saveSurveyResponse(response);
+				System.out.println(response.getId());
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -270,11 +286,12 @@ public class SurveyService {
 	}
 
 	public SurveyResponse getResponseFromJson(JSONObject jsonObject, User user) {
+		
 		SurveyResponse response = null;
 
 		try {
 			Survey survey = surveyDao.getSurvey(jsonObject.getLong("surveyId"));
-
+			
 			response = new SurveyResponse(survey);
 			
 			AnswerSheet answerSheet = response.getAnswerSheet();
@@ -283,38 +300,44 @@ public class SurveyService {
 			
 			JSONObject answerSheetJsonObject = jsonObject.getJSONObject("answerSheet");
 			JSONArray sectionsJsonArray = answerSheetJsonObject.getJSONArray("sections");
-
+			
+			Map<Integer, JSONObject> sectionsMap = new HashMap<>();
+			
 			for (int i = 0; i < sectionsJsonArray.length(); i++) {
 				JSONObject sectionJsonObject = sectionsJsonArray.getJSONObject(i);
-				
-				AnswerSection section = answerSheet.getSections().get(i);
+				int index = sectionJsonObject.getInt("index");
+				sectionsMap.put(index, sectionJsonObject);
+			}
 
-				JSONArray answersJsonArray = sectionJsonObject.getJSONArray("answers");
-				List<Answer> answers = section.getAnswers();
+			List<AnswerSection> sections = answerSheet.getSections();
+			for(int i = 0; i<sections.size(); i++){
+				AnswerSection section = answerSheet.getSections().get(i);
 				
-				ChoiceAnswer choiceAnswer;
-				TextAnswer textAnswer;
+				JSONObject sectionJsonObject = sectionsMap.get(i);
+				JSONArray answersJsonArray = sectionJsonObject.getJSONArray("answers");
+				
+				Map<Long, JSONObject> answersMap = new HashMap<>(); 
 				
 				for(int j = 0; j<answersJsonArray.length(); j++) {
 					JSONObject answerJsonObject = answersJsonArray.getJSONObject(j);
 					Long questionId = answerJsonObject.getLong("questionId");
-					Question question = questionDao.getQuestion(questionId);
 					
-					if(question instanceof ChoiceQuestion){
-						choiceAnswer = new ChoiceAnswer((ChoiceQuestion) question);
+					answersMap.put(questionId, answerJsonObject);
+				}
+				
+				List<Answer> answers = section.getAnswers();
+				
+				for(Answer answer: answers){
+					JSONObject answerJsonObject = answersMap.get(answer.getQuestion().getId());
+					
+					if(answer instanceof ChoiceAnswer){
 						JSONArray selectionsJsonArray = answerJsonObject.getJSONArray("selections");
 						for(int sel = 0; sel<selectionsJsonArray.length(); sel++){
-							choiceAnswer.getSelections().add(selectionsJsonArray.getInt(sel));
+							((ChoiceAnswer)answer).getSelections().add(selectionsJsonArray.getInt(sel));
 						}
-						choiceAnswer.setIndex(j);
-						answers.add(choiceAnswer);
+					}else if(answer instanceof TextAnswer){
+						((TextAnswer)answer).setText(answerJsonObject.getString("text"));	
 					}
-					else if(question instanceof TextQuestion){
-						textAnswer = new TextAnswer((TextQuestion) question);
-						textAnswer.setText(answerJsonObject.getString("text"));
-						textAnswer.setIndex(j);						
-						answers.add(textAnswer);
-					}					
 				}
 			}
 

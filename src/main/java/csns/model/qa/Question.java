@@ -32,6 +32,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Inheritance
 @Table(name = "questions")
@@ -49,6 +51,7 @@ public abstract class Question implements Serializable {
     @Column(name = "point_value", nullable = false)
     protected int pointValue;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "question")
     @OrderBy("id asc")
     protected List<Answer> answers;

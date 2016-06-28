@@ -37,8 +37,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import csns.model.academics.Department;
 import csns.model.core.User;
@@ -46,7 +45,6 @@ import csns.model.qa.QuestionSheet;
 
 @Entity
 @Table(name = "surveys")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Survey implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -83,6 +81,7 @@ public class Survey implements Serializable {
     @Column(nullable = false)
     private Date date;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "survey")
     @OrderBy("id asc")
     private List<SurveyResponse> responses;

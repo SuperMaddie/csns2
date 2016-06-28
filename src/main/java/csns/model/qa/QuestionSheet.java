@@ -33,6 +33,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "question_sheets")
 public class QuestionSheet implements Serializable {
@@ -50,6 +52,7 @@ public class QuestionSheet implements Serializable {
     @OrderColumn(name = "section_index")
     private List<QuestionSection> sections;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "questionSheet")
     private Set<AnswerSheet> answerSheets;
 
