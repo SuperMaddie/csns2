@@ -20,7 +20,9 @@ package csns.model.academics;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -67,10 +69,10 @@ public class Group implements Serializable, Comparable<Group>{
 	@JoinTable(name = "group_users",
 			joinColumns = @JoinColumn(name="group_id", nullable=false),
 			inverseJoinColumns = @JoinColumn(name="user_id", nullable=false))
-	private List<User> users;    
+	private Set<User> users;    
 	
 	public Group() {
-		users = new ArrayList<User>();
+		users = new HashSet<User>();
 		deleted = false;
 	}
 	
@@ -113,11 +115,11 @@ public class Group implements Serializable, Comparable<Group>{
 		this.department = department;
 	}
 
-	public List<User> getUsers() {
+	public Set<User> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<User> users) {
+	public void setUsers(Set<User> users) {
 		this.users = users;
 	}
 

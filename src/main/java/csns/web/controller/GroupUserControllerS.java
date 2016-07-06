@@ -19,6 +19,7 @@
 package csns.web.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -94,7 +95,7 @@ public class GroupUserControllerS {
         HttpServletRequest request, SessionStatus sessionStatus, ModelMap models )
     {
     	Group group = groupDao.getGroup(id);
-    	List<User> users = group.getUsers();
+    	Set<User> users = group.getUsers();
     	
         if( request.getParameter( "_finish" ) == null )
         {

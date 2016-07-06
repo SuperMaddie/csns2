@@ -19,8 +19,10 @@
 package csns.web.controller;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -83,7 +85,7 @@ public class GroupControllerS {
 
 		// ------------add individual users------------//
 		if (addUserId != null) {
-			List<User> users = group.getUsers();
+			Set<User> users = group.getUsers();
 			boolean add = true;
 			for (User u : users) {
 				if (u.getId().equals(addUserId))
@@ -100,7 +102,7 @@ public class GroupControllerS {
 
 		// ------------remove individual users------------//
 		if (removeUserId != null) {
-			List<User> users = group.getUsers();
+			Set<User> users = group.getUsers();
 			for (User u : users) {
 				if (u.getId().equals(removeUserId)) {
 					users.remove(u);
@@ -144,7 +146,7 @@ public class GroupControllerS {
 
 		// ------------add individual users------------//
 		if (addUserId != null) {
-			List<User> users = group.getUsers();
+			Set<User> users = group.getUsers();
 			boolean add = true;
 			for (User u : users) {
 				if (u.getId().equals(addUserId))
@@ -160,7 +162,7 @@ public class GroupControllerS {
 		// ---------------------------------------------//
 		// ------------remove individual users------------//
 		if (removeUserId != null) {
-			List<User> users = group.getUsers();
+			Set<User> users = group.getUsers();
 			for (User u : users) {
 				if (u.getId().equals(removeUserId)) {
 					users.remove(u);
@@ -196,7 +198,7 @@ public class GroupControllerS {
         throws IOException
     {
         Group group = groupDao.getGroup(id);
-        List<User> users = group.getUsers();
+        Set<User> users = group.getUsers();
 
         response.setContentType( contentTypes.getProperty( "xlsx" ) );
         response.setHeader( "Content-Disposition", "attachment; filename="
@@ -212,11 +214,14 @@ public class GroupControllerS {
         row.createCell( 1 ).setCellValue( "Name" );
         row.createCell( 2 ).setCellValue( "Primary Email" );
         
-        for(int i = 0; i < n; i++) {
-        	row = sheet.createRow( i+1 );
-        	row.createCell( 0 ).setCellValue( users.get(i).getCin() );
-            row.createCell( 1 ).setCellValue( users.get(i).getName() );
-            row.createCell( 2 ).setCellValue( users.get(i).getPrimaryEmail() );
+        Iterator<User> iterator = users.iterator();
+        int index = 0;
+        while(iterator.hasNext()) {
+        	User user = iterator.next();
+        	row = sheet.createRow( ++index );
+        	row.createCell( 0 ).setCellValue( user.getCin() );
+            row.createCell( 1 ).setCellValue( user.getName() );
+            row.createCell( 2 ).setCellValue( user.getPrimaryEmail() );
         }
 
         wb.write( response.getOutputStream() );
