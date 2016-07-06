@@ -136,7 +136,7 @@ public class SurveyDaoImpl implements SurveyDao {
 
     @Override
     @Transactional
-    @PreAuthorize("principal.isFaculty(#survey.department.abbreviation)")
+    //@PreAuthorize("principal.isFaculty(#survey.department.abbreviation)")
     public Survey saveSurvey( Survey survey )
     {
         return entityManager.merge( survey );
