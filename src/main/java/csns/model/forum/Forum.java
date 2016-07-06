@@ -85,7 +85,7 @@ public class Forum implements Subscribable, Serializable {
     @Column(name = "num_of_posts", nullable = false)
     private int numOfPosts;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "last_post_id", unique = true)
     private Post lastPost;
 

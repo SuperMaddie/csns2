@@ -49,7 +49,7 @@
         <property name="basename" value="messages" />
     </bean>
 
-    <bean id="exceptionResolver" class="csns.web.resolver.ExceptionResolver">
+    <!-- <bean id="exceptionResolver" class="csns.web.resolver.ExceptionResolver">
         <property name="exceptionMappings">
             <props>
                 <prop key="AccessDeniedException">exception/access</prop>
@@ -57,7 +57,7 @@
             </props>
         </property>
         <property name="defaultErrorView" value="exception/default" />
-    </bean>
+    </bean> -->
 
     <!-- See http://duckranger.com/2012/11/add-conversation-support-to-spring-mvc/ -->
     <bean id="conversationalSessionAttributeStore" class="csns.web.support.ConversationalSessionAttributeStore" />

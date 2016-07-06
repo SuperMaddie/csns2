@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.AssociationOverride;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,7 +44,7 @@ public class Post extends AbstractMessage implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "topic_id")
     private Topic topic;
 

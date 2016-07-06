@@ -109,11 +109,11 @@ public class PopupControllerS {
 	@PostConstruct
 	public void init() {
 		List<String> roleDispValues = new ArrayList<String>();
-		roles.add("DEPT_ROLE_ADMIN");
-		roles.add("DEPT_ROLE_FACULTY");
-		roles.add("DEPT_ROLE_INSTRUCTOR");
-		roles.add("DEPT_ROLE_REVIEWER");
-		roles.add("DEPT_ROLE_EVALUATOR");
+		roles.add("ROLE_DEPT_ADMIN");
+		roles.add("ROLE_DEPT_FACULTY");
+		roles.add("ROLE_DEPT_INSTRUCTOR");
+		roles.add("ROLE_DEPT_REVIEWER");
+		roles.add("ROLE_DEPT_EVALUATOR");
 		
 		roleDispValues.add("Administraitors");
 		roleDispValues.add("Faculty");
@@ -251,7 +251,7 @@ public class PopupControllerS {
 
 			news.setExpireDate(popup.getExpireDate());
 			user.incrementNumOfForumPosts();
-
+			
 			popup.setNews(news);
 			subscriptionDao.subscribe(popup.getNews().getTopic(), user);
 		}
