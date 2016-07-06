@@ -30,6 +30,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Inheritance
 @Table(name = "answers")
@@ -42,6 +44,7 @@ public abstract class Answer implements Serializable {
     @GeneratedValue
     protected Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "answer_section_id", nullable = false)
     protected AnswerSection section;

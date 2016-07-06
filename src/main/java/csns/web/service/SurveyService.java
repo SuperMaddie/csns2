@@ -24,14 +24,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import csns.model.academics.Department;
 import csns.model.academics.dao.DepartmentDao;
 import csns.model.core.User;
+import csns.model.core.dao.UserDao;
 import csns.model.qa.Answer;
 import csns.model.qa.AnswerSection;
 import csns.model.qa.AnswerSheet;
@@ -54,9 +59,9 @@ import csns.model.qa.QuestionSection;
 import csns.model.qa.QuestionSheet;
 import csns.model.qa.TextAnswer;
 import csns.model.qa.TextQuestion;
-import csns.model.qa.dao.QuestionDao;
 import csns.model.survey.Survey;
 import csns.model.survey.SurveyResponse;
+import csns.model.survey.SurveyType;
 import csns.model.survey.dao.SurveyDao;
 import csns.model.survey.dao.SurveyResponseDao;
 
@@ -73,19 +78,20 @@ public class SurveyService {
 	private SurveyResponseDao surveyResponseDao;
 
 	@Autowired
-	private QuestionDao questionDao;
+	private UserDao userDao;
+	
+	private static final Logger logger = LoggerFactory.getLogger( SurveyService.class );
 
 	@RequestMapping("/service/survey/list")
 	public String list(ModelMap models, @RequestParam(name = "dept") String dept) {
 
 		Department department = departmentDao.getDepartment(dept);
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User user = (User) authentication.getPrincipal();
 		
 		List<Survey> openSurveys = null;
 		openSurveys = surveyDao.getOpenSurveys(department);
 		
 		if(openSurveys == null || openSurveys.size() == 0) {
+			User user = userDao.getUserByUsername("cysun");
 			/*--------------- Test data --------------*/
 			Survey testSurvey = new Survey();
 			Calendar publishDate = Calendar.getInstance();
@@ -181,6 +187,7 @@ public class SurveyService {
 			/*----------test survey 2------------------*/
 			
 			testSurvey = new Survey();
+			testSurvey.setType(SurveyType.RECORDED);
 			testSurvey.setPublishDate(publishDate);
 			testSurvey.setCloseDate(closeDate);
 			testSurvey.setDepartment(department);
@@ -239,6 +246,60 @@ public class SurveyService {
 			
 			openSurveys.add(testSurvey);
 			/*-----------------------------------------*/
+			
+			/*----------test survey 3------------------*/
+			
+			testSurvey = new Survey();
+			testSurvey.setType(SurveyType.NAMED);
+			testSurvey.setPublishDate(publishDate);
+			testSurvey.setCloseDate(closeDate);
+			testSurvey.setDepartment(department);
+			testSurvey.setName("survey3");
+			testSurvey.setAuthor(user);
+			testSurvey.setDate(new Date());
+			questionSheet = new QuestionSheet();
+			questionSheet.setDescription("Another test question sheet.");
+			sections = new ArrayList<>();
+
+			/* add section 1 */
+			section = new QuestionSection();
+			section.setDescription("section1");
+			questions = new ArrayList<>();
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take???");
+			question1.setChoices(choices);
+			questions.add(question1);
+			section.setQuestions(questions);
+			sections.add(section);
+
+			/* add section 2 */
+			questions = new ArrayList<>();
+			section = new QuestionSection();
+			section.setDescription("section2");
+			questions = new ArrayList<>();
+			question1 = new ChoiceQuestion();
+			question1.setDescription("Which of the following courses you are going to take???");
+			question1.setChoices(choices2);
+			questions.add(question1);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your cin here???");
+			questions.add(question2);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your start year???");
+			questions.add(question2);
+
+			section.setQuestions(questions);
+			sections.add(section);
+
+			questionSheet.setSections(sections);
+			testSurvey.setQuestionSheet(questionSheet);
+			
+			testSurvey = surveyDao.saveSurvey(testSurvey);
+			
+			openSurveys.add(testSurvey);
+			/*-----------------------------------------*/
 		}
 		
 		Map<Long, Integer> sectionIndices = new HashMap<>();
@@ -253,13 +314,78 @@ public class SurveyService {
 		models.put("surveys", openSurveys);
 		return "jsonView";
 	}
+	
+	@RequestMapping("/service/survey/responses")
+	public String getResponses(ModelMap models, @RequestParam(name = "dept") String dept) {
+
+		Department department = departmentDao.getDepartment(dept);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();	
+		User user = (User) authentication.getPrincipal();
+		
+		List<Survey> openSurveys = surveyDao.getOpenSurveys(department);
+		List<SurveyResponse> responses = new ArrayList<>();
+		SurveyResponse response;
+
+		Set<Survey> surveysTaken = user.getSurveysTaken();
+		Set<Long> surveysTakenIds = new HashSet<Long>();
+		
+		if(openSurveys != null && openSurveys.size() > 0){			
+			for(Survey survey: openSurveys){
+				/* for named surveys */
+				response = surveyResponseDao.getSurveyResponse(survey, user);
+				if(response != null){
+					responses.add(response);
+				}
+				 
+				/* for recorded surveys */
+				if(surveysTaken.contains(survey)){
+					surveysTakenIds.add(survey.getId());
+				}
+			}
+		}
+		
+		models.put("surveysTakenIds", surveysTakenIds);
+		models.put("responses", responses);
+		return "jsonView";
+	}
 
 	@RequestMapping(value = "/service/survey/saveAnswers", method = RequestMethod.POST)
 	public String saveAnswers(@RequestParam(name = "dept") String dept, HttpServletRequest request) {
 
-		/* get current user */
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User user = (User) authentication.getPrincipal();	
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();	
+		User user = (User) authentication.getPrincipal();
+		
+		StringBuffer buffer = new StringBuffer();
+		String line = null;
+		try {
+			BufferedReader reader = request.getReader();
+			while ((line = reader.readLine()) != null) {
+				buffer.append(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			JSONObject jsonObject = new JSONObject(buffer.toString());
+			SurveyResponse response = getResponseFromJson(jsonObject);
+			/* save response */
+			if(response != null){
+				response = surveyResponseDao.saveSurveyResponse(response);
+				if( response.getSurvey().getType() == SurveyType.NAMED )
+	                logger.info( user.getUsername()
+	                    + " completed survey " + response.getSurvey().getId() );
+	            else
+	                logger.info( "A user completed survey " + response.getSurvey().getId() );
+				System.out.println(user.getUsername() + " completed survey " + response.getSurvey().getId() + " responseID : " + response.getId());
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return "jsonView";
+	}
+	
+	@RequestMapping(value = "/service/anonymous/survey/saveAnswers", method = RequestMethod.POST)
+	public String saveAnonymousAnswers(@RequestParam(name = "dept") String dept, HttpServletRequest request) {	
 
 		StringBuffer buffer = new StringBuffer();
 		String line = null;
@@ -273,11 +399,12 @@ public class SurveyService {
 		}
 		try {
 			JSONObject jsonObject = new JSONObject(buffer.toString());
-			SurveyResponse response = getResponseFromJson(jsonObject, user);
+			SurveyResponse response = getResponseFromJson(jsonObject);
 			/* save response */
 			if(response != null){
 				response = surveyResponseDao.saveSurveyResponse(response);
-				System.out.println(response.getId());
+				logger.info( "A user completed survey " + response.getSurvey().getId() );
+				System.out.println("A user completed survey " + response.getSurvey().getId() + " responseID : " + response.getId());
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -285,8 +412,9 @@ public class SurveyService {
 		return "jsonView";
 	}
 
-	public SurveyResponse getResponseFromJson(JSONObject jsonObject, User user) {
+	public SurveyResponse getResponseFromJson(JSONObject jsonObject) {
 		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();	
 		SurveyResponse response = null;
 
 		try {
@@ -295,7 +423,16 @@ public class SurveyService {
 			response = new SurveyResponse(survey);
 			
 			AnswerSheet answerSheet = response.getAnswerSheet();
-			answerSheet.setAuthor(user);
+			if(survey.getType().equals(SurveyType.NAMED)){
+				User user = (User) authentication.getPrincipal();
+				answerSheet.setAuthor(user);
+			}
+			if( survey.getType().equals( SurveyType.RECORDED ) ){
+				User user = (User) authentication.getPrincipal();
+                User recordedUser = userDao.getUser( user.getId() );
+                user.getSurveysTaken().add( survey );
+                userDao.saveUser( recordedUser );
+            }
 			answerSheet.setDate(new Date());
 			
 			JSONObject answerSheetJsonObject = jsonObject.getJSONObject("answerSheet");

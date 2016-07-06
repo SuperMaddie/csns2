@@ -32,6 +32,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OrderColumn;
 
+
 @Entity
 @DiscriminatorValue("CHOICE")
 public class ChoiceQuestion extends Question {

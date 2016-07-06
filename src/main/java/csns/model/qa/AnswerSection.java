@@ -34,6 +34,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "answer_sections")
 public class AnswerSection implements Serializable {
@@ -44,6 +46,7 @@ public class AnswerSection implements Serializable {
     @GeneratedValue
     protected Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "answer_sheet_id", nullable = false)
     protected AnswerSheet answerSheet;
