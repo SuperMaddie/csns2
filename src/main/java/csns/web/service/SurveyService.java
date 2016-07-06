@@ -100,27 +100,27 @@ public class SurveyService {
 			closeDate.add(Calendar.DATE, 3);
 			testSurvey.setCloseDate(closeDate);
 			testSurvey.setDepartment(department);
-			testSurvey.setName("General Information");
+			testSurvey.setName("survey1");
 			testSurvey.setAuthor(user);
 			testSurvey.setDate(new Date());
 			QuestionSheet questionSheet = new QuestionSheet();
-			questionSheet.setDescription("Please provide the general information asked in the questions.");
+			questionSheet.setDescription("This is a test question sheet.");
 			List<QuestionSection> sections = new ArrayList<>();
 
 			/* add section 1 */
 			QuestionSection section = new QuestionSection();
-			section.setDescription("Student Info");
+			section.setDescription("section1");
 			List<Question> questions = new ArrayList<>();
 			ChoiceQuestion question1 = new ChoiceQuestion();
 			question1.setMaxSelections(1);
 			question1.setMinSelections(1);
-			question1.setDescription("Which degree are you studying in?");
+			question1.setDescription("Which of the <i>following</i> <b>courses</b> you are going to take?");
 			@SuppressWarnings("serial")
 			List<String> choices = new ArrayList<String>() {
 				{
-					add("Graduate");
-					add("Undergraduate");
-					add("Combined");
+					add("CS101");
+					add("CS202");
+					add("CS400");
 				}
 			};
 			question1.setChoices(choices);
@@ -129,28 +129,17 @@ public class SurveyService {
 			TextQuestion question2 = new TextQuestion();
 			question2.setDescription("Enter your email address here.");
 			questions.add(question2);
-			
-			question2 = new TextQuestion();
-			question2.setDescription("Enter your cin here.");
-			questions.add(question2);
-
-			question2 = new TextQuestion();
-			question2.setDescription("Enter your start year.");
-			questions.add(question2);
-
-			section.setQuestions(questions);
-			sections.add(section);
-			
 			section.setQuestions(questions);
 			sections.add(section);
 
 			/* add section 2 */
 			questions = new ArrayList<>();
 			section = new QuestionSection();
-			section.setDescription("Subjects Taken");
+			section.setDescription("section2");
 			questions = new ArrayList<>();
 			question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following subjects you have taken?");
+			question1.setMaxSelections(1);
+			question1.setDescription("Which of the following courses you are going to take?");
 			@SuppressWarnings("serial")
 			List<String> choices2 = new ArrayList<String>() {
 				{
@@ -177,6 +166,17 @@ public class SurveyService {
 			question1.setChoices(choices3);
 			questions.add(question1);
 
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your cin here.");
+			questions.add(question2);
+
+			question2 = new TextQuestion();
+			question2.setDescription("Enter your start year.");
+			questions.add(question2);
+
+			section.setQuestions(questions);
+			sections.add(section);
+
 			questionSheet.setSections(sections);
 			testSurvey.setQuestionSheet(questionSheet);
 			
@@ -191,24 +191,24 @@ public class SurveyService {
 			testSurvey.setPublishDate(publishDate);
 			testSurvey.setCloseDate(closeDate);
 			testSurvey.setDepartment(department);
-			testSurvey.setName("Next Semester Subjects");
+			testSurvey.setName("survey2");
 			testSurvey.setAuthor(user);
 			testSurvey.setDate(new Date());
 			questionSheet = new QuestionSheet();
-			questionSheet.setDescription("This survey is to estimate number of sections for each section.");
+			questionSheet.setDescription("Another test question sheet.");
 			sections = new ArrayList<>();
 
 			/* add section 1 */
 			section = new QuestionSection();
-			section.setDescription("Graduate Level Subjects");
+			section.setDescription("section1");
 			questions = new ArrayList<>();
 			question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following courses you are going to take?");
+			question1.setDescription("Which of the following courses you are going to take???");
 			question1.setChoices(choices);
 			questions.add(question1);
 
 			question2 = new TextQuestion();
-			question2.setDescription("Enter your email address here?");
+			question2.setDescription("Enter your email address here???");
 			questions.add(question2);
 			section.setQuestions(questions);
 			sections.add(section);
@@ -216,24 +216,24 @@ public class SurveyService {
 			/* add section 2 */
 			questions = new ArrayList<>();
 			section = new QuestionSection();
-			section.setDescription("Graduate Level Subjects2");
+			section.setDescription("section2");
 			questions = new ArrayList<>();
 			question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following courses you are going to take?");
+			question1.setDescription("Which of the following courses you are going to take???");
 			question1.setChoices(choices2);
 			questions.add(question1);
 
 			question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following courses you are going to take?");
+			question1.setDescription("Which of the following courses you are going to take???");
 			question1.setChoices(choices3);
 			questions.add(question1);
 
 			question2 = new TextQuestion();
-			question2.setDescription("Enter your cin here?");
+			question2.setDescription("Enter your cin here???");
 			questions.add(question2);
 
 			question2 = new TextQuestion();
-			question2.setDescription("Enter your start year?");
+			question2.setDescription("Enter your start year???");
 			questions.add(question2);
 
 			section.setQuestions(questions);
@@ -254,19 +254,19 @@ public class SurveyService {
 			testSurvey.setPublishDate(publishDate);
 			testSurvey.setCloseDate(closeDate);
 			testSurvey.setDepartment(department);
-			testSurvey.setName("Test Named Survey");
+			testSurvey.setName("survey3");
 			testSurvey.setAuthor(user);
 			testSurvey.setDate(new Date());
 			questionSheet = new QuestionSheet();
-			questionSheet.setDescription("This is a test questions sheet.");
+			questionSheet.setDescription("Another test question sheet.");
 			sections = new ArrayList<>();
 
 			/* add section 1 */
 			section = new QuestionSection();
-			section.setDescription("Courses You Might Take");
+			section.setDescription("section1");
 			questions = new ArrayList<>();
 			question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following courses you are going to take?");
+			question1.setDescription("Which of the following courses you are going to take???");
 			question1.setChoices(choices);
 			questions.add(question1);
 			section.setQuestions(questions);
@@ -275,15 +275,15 @@ public class SurveyService {
 			/* add section 2 */
 			questions = new ArrayList<>();
 			section = new QuestionSection();
-			section.setDescription("Courses You Might Take");
+			section.setDescription("section2");
 			questions = new ArrayList<>();
 			question1 = new ChoiceQuestion();
-			question1.setDescription("Which of the following courses you are going to take?");
+			question1.setDescription("Which of the following courses you are going to take???");
 			question1.setChoices(choices2);
 			questions.add(question1);
 
 			question2 = new TextQuestion();
-			question2.setDescription("Enter your cin here?");
+			question2.setDescription("Enter your cin here???");
 			questions.add(question2);
 
 			question2 = new TextQuestion();
@@ -332,7 +332,7 @@ public class SurveyService {
 		if(openSurveys != null && openSurveys.size() > 0){			
 			for(Survey survey: openSurveys){
 				/* for named surveys */
-				response = surveyResponseDao.getSurveyResponse(survey, user);
+				response = surveyResponseDao.getLastSurveyResponse(survey, user);
 				if(response != null){
 					responses.add(response);
 				}

@@ -56,6 +56,20 @@ public class SurveyResponseDaoImpl implements SurveyResponseDao {
             .getResultList();
         return results.size() == 0 ? null : results.get( 0 );
     }
+    
+    @Override
+    public SurveyResponse getLastSurveyResponse( Survey survey, User user )
+    {
+        String query = "from SurveyResponse where survey = :survey "
+            + "and answerSheet.author = :user";
+
+        List<SurveyResponse> results = entityManager.createQuery( query,
+            SurveyResponse.class )
+            .setParameter( "survey", survey )
+            .setParameter( "user", user )
+            .getResultList();
+        return results.size() == 0 ? null : results.get( results.size()-1 );
+    }
 
     @Override
     public SurveyResponse findSurveyResponse( Long answerSheetId )

@@ -32,4 +32,6 @@ public interface SurveyResponseDao {
 
     SurveyResponse saveSurveyResponse( SurveyResponse surveyResponse );
 
+	SurveyResponse getLastSurveyResponse(Survey survey, User user);
+
 }
