@@ -39,111 +39,100 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "question_sheets")
 public class QuestionSheet implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue
-    private Long id;
+	@Id
+	@GeneratedValue
+	private Long id;
 
-    private String description;
+	private String description;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_sheet_id")
-    @OrderColumn(name = "section_index")
-    private List<QuestionSection> sections;
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "question_sheet_id")
+	@OrderColumn(name = "section_index")
+	private List<QuestionSection> sections;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "questionSheet")
-    private Set<AnswerSheet> answerSheets;
+	@JsonIgnore
+	@OneToMany(mappedBy = "questionSheet")
+	private Set<AnswerSheet> answerSheets;
 
-    public QuestionSheet()
-    {
-        sections = new ArrayList<QuestionSection>();
-        sections.add( new QuestionSection() );
-        answerSheets = new HashSet<AnswerSheet>();
-    }
+	public QuestionSheet() {
+		sections = new ArrayList<QuestionSection>();
+		sections.add(new QuestionSection());
+		answerSheets = new HashSet<AnswerSheet>();
+	}
 
-    public QuestionSheet clone()
-    {
-        QuestionSheet newQuestionSheet = new QuestionSheet();
-        newQuestionSheet.description = description;
+	public QuestionSheet clone() {
+		QuestionSheet newQuestionSheet = new QuestionSheet();
+		newQuestionSheet.description = description;
 
-        newQuestionSheet.sections.clear();
-        for( QuestionSection section : sections )
-            newQuestionSheet.sections.add( section.clone() );
+		newQuestionSheet.sections.clear();
+		for (QuestionSection section : sections)
+			newQuestionSheet.sections.add(section.clone());
 
-        return newQuestionSheet;
-    }
+		return newQuestionSheet;
+	}
 
-    public int getNumOfSections()
-    {
-        return sections.size();
-    }
+	public int getNumOfSections() {
+		return sections.size();
+	}
 
-    public void setNumOfSections( int n )
-    {
-        if( n < 1 ) n = 1;
+	public void setNumOfSections(int n) {
+		if (n < 1)
+			n = 1;
 
-        if( n > sections.size() )
-        {
-            for( int i = sections.size(); i < n; ++i )
-                sections.add( new QuestionSection() );
-        }
+		if (n > sections.size()) {
+			for (int i = sections.size(); i < n; ++i)
+				sections.add(new QuestionSection());
+		}
 
-        if( n < sections.size() )
-        {
-            for( int i = sections.size(); i > n; --i )
-                sections.remove( i - 1 );
-        }
-    }
+		if (n < sections.size()) {
+			for (int i = sections.size(); i > n; --i)
+				sections.remove(i - 1);
+		}
+	}
 
-    public int getTotalPoints()
-    {
-        int totalPoints = 0;
-        for( QuestionSection section : sections )
-            totalPoints += section.getTotalPoints();
+	public int getTotalPoints() {
+		int totalPoints = 0;
+		for (QuestionSection section : sections) {
+			if (section != null) {
+				totalPoints += section.getTotalPoints();
+			}
+		}
 
-        return totalPoints;
-    }
+		return totalPoints;
+	}
 
-    public Long getId()
-    {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId( Long id )
-    {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getDescription()
-    {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setDescription( String description )
-    {
-        this.description = description;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public List<QuestionSection> getSections()
-    {
-        return sections;
-    }
+	public List<QuestionSection> getSections() {
+		return sections;
+	}
 
-    public void setSections( List<QuestionSection> sections )
-    {
-        this.sections = sections;
-    }
+	public void setSections(List<QuestionSection> sections) {
+		this.sections = sections;
+	}
 
-    public Set<AnswerSheet> getAnswerSheets()
-    {
-        return answerSheets;
-    }
+	public Set<AnswerSheet> getAnswerSheets() {
+		return answerSheets;
+	}
 
-    public void setAnswerSheets( Set<AnswerSheet> answerSheets )
-    {
-        this.answerSheets = answerSheets;
-    }
+	public void setAnswerSheets(Set<AnswerSheet> answerSheets) {
+		this.answerSheets = answerSheets;
+	}
 
 }
