@@ -73,24 +73,24 @@ public class SurveyService {
 
 	@Autowired
 	private SurveyDao surveyDao;
-	
+
 	@Autowired
 	private SurveyResponseDao surveyResponseDao;
 
 	@Autowired
 	private UserDao userDao;
-	
-	private static final Logger logger = LoggerFactory.getLogger( SurveyService.class );
+
+	private static final Logger logger = LoggerFactory.getLogger(SurveyService.class);
 
 	@RequestMapping("/service/survey/list")
 	public String list(ModelMap models, @RequestParam(name = "dept") String dept) {
 
 		Department department = departmentDao.getDepartment(dept);
-		
+
 		List<Survey> openSurveys = null;
 		openSurveys = surveyDao.getOpenSurveys(department);
-		
-		if(openSurveys == null || openSurveys.size() == 0) {
+
+		if (openSurveys == null || openSurveys.size() == 0) {
 			User user = userDao.getUserByUsername("cysun");
 			/*--------------- Test data --------------*/
 			Survey testSurvey = new Survey();
@@ -179,13 +179,13 @@ public class SurveyService {
 
 			questionSheet.setSections(sections);
 			testSurvey.setQuestionSheet(questionSheet);
-			
+
 			testSurvey = surveyDao.saveSurvey(testSurvey);
-			
+
 			openSurveys.add(testSurvey);
-			
+
 			/*----------test survey 2------------------*/
-			
+
 			testSurvey = new Survey();
 			testSurvey.setType(SurveyType.RECORDED);
 			testSurvey.setPublishDate(publishDate);
@@ -241,14 +241,14 @@ public class SurveyService {
 
 			questionSheet.setSections(sections);
 			testSurvey.setQuestionSheet(questionSheet);
-			
+
 			testSurvey = surveyDao.saveSurvey(testSurvey);
-			
+
 			openSurveys.add(testSurvey);
 			/*-----------------------------------------*/
-			
+
 			/*----------test survey 3------------------*/
-			
+
 			testSurvey = new Survey();
 			testSurvey.setType(SurveyType.NAMED);
 			testSurvey.setPublishDate(publishDate);
@@ -295,18 +295,22 @@ public class SurveyService {
 
 			questionSheet.setSections(sections);
 			testSurvey.setQuestionSheet(questionSheet);
-			
+
 			testSurvey = surveyDao.saveSurvey(testSurvey);
-			
+
 			openSurveys.add(testSurvey);
 			/*-----------------------------------------*/
 		}
-		
+
 		Map<Long, Integer> sectionIndices = new HashMap<>();
-		for(Survey survey: openSurveys){
+		for (Survey survey : openSurveys) {
 			List<QuestionSection> sections = survey.getQuestionSheet().getSections();
-			for(int i = 0; i<sections.size(); i++){
-				sectionIndices.put(sections.get(i).getId(), i);
+			if (sections != null) {
+				for (int i = 0; i < sections.size(); i++) {
+					if (sections.get(i) != null) {
+						sectionIndices.put(sections.get(i).getId(), i);
+					}
+				}
 			}
 		}
 
@@ -314,36 +318,36 @@ public class SurveyService {
 		models.put("surveys", openSurveys);
 		return "jsonView";
 	}
-	
+
 	@RequestMapping("/service/survey/responses")
 	public String getResponses(ModelMap models, @RequestParam(name = "dept") String dept) {
 
 		Department department = departmentDao.getDepartment(dept);
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();	
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User) authentication.getPrincipal();
-		
+
 		List<Survey> openSurveys = surveyDao.getOpenSurveys(department);
 		List<SurveyResponse> responses = new ArrayList<>();
 		SurveyResponse response;
 
 		Set<Survey> surveysTaken = user.getSurveysTaken();
 		Set<Long> surveysTakenIds = new HashSet<Long>();
-		
-		if(openSurveys != null && openSurveys.size() > 0){			
-			for(Survey survey: openSurveys){
+
+		if (openSurveys != null && openSurveys.size() > 0) {
+			for (Survey survey : openSurveys) {
 				/* for named surveys */
 				response = surveyResponseDao.getLastSurveyResponse(survey, user);
-				if(response != null){
+				if (response != null) {
 					responses.add(response);
 				}
-				 
+
 				/* for recorded surveys */
-				if(surveysTaken.contains(survey)){
+				if (surveysTaken.contains(survey)) {
 					surveysTakenIds.add(survey.getId());
 				}
 			}
 		}
-		
+
 		models.put("surveysTakenIds", surveysTakenIds);
 		models.put("responses", responses);
 		return "jsonView";
@@ -352,40 +356,8 @@ public class SurveyService {
 	@RequestMapping(value = "/service/survey/saveAnswers", method = RequestMethod.POST)
 	public String saveAnswers(@RequestParam(name = "dept") String dept, HttpServletRequest request) {
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();	
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User) authentication.getPrincipal();
-		
-		StringBuffer buffer = new StringBuffer();
-		String line = null;
-		try {
-			BufferedReader reader = request.getReader();
-			while ((line = reader.readLine()) != null) {
-				buffer.append(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			JSONObject jsonObject = new JSONObject(buffer.toString());
-			SurveyResponse response = getResponseFromJson(jsonObject);
-			/* save response */
-			if(response != null){
-				response = surveyResponseDao.saveSurveyResponse(response);
-				if( response.getSurvey().getType() == SurveyType.NAMED )
-	                logger.info( user.getUsername()
-	                    + " completed survey " + response.getSurvey().getId() );
-	            else
-	                logger.info( "A user completed survey " + response.getSurvey().getId() );
-				System.out.println(user.getUsername() + " completed survey " + response.getSurvey().getId() + " responseID : " + response.getId());
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return "jsonView";
-	}
-	
-	@RequestMapping(value = "/service/anonymous/survey/saveAnswers", method = RequestMethod.POST)
-	public String saveAnonymousAnswers(@RequestParam(name = "dept") String dept, HttpServletRequest request) {	
 
 		StringBuffer buffer = new StringBuffer();
 		String line = null;
@@ -401,10 +373,43 @@ public class SurveyService {
 			JSONObject jsonObject = new JSONObject(buffer.toString());
 			SurveyResponse response = getResponseFromJson(jsonObject);
 			/* save response */
-			if(response != null){
+			if (response != null) {
 				response = surveyResponseDao.saveSurveyResponse(response);
-				logger.info( "A user completed survey " + response.getSurvey().getId() );
-				System.out.println("A user completed survey " + response.getSurvey().getId() + " responseID : " + response.getId());
+				if (response.getSurvey().getType() == SurveyType.NAMED)
+					logger.info(user.getUsername() + " completed survey " + response.getSurvey().getId());
+				else
+					logger.info("A user completed survey " + response.getSurvey().getId());
+				System.out.println(user.getUsername() + " completed survey " + response.getSurvey().getId()
+						+ " responseID : " + response.getId());
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return "jsonView";
+	}
+
+	@RequestMapping(value = "/service/anonymous/survey/saveAnswers", method = RequestMethod.POST)
+	public String saveAnonymousAnswers(@RequestParam(name = "dept") String dept, HttpServletRequest request) {
+
+		StringBuffer buffer = new StringBuffer();
+		String line = null;
+		try {
+			BufferedReader reader = request.getReader();
+			while ((line = reader.readLine()) != null) {
+				buffer.append(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			JSONObject jsonObject = new JSONObject(buffer.toString());
+			SurveyResponse response = getResponseFromJson(jsonObject);
+			/* save response */
+			if (response != null) {
+				response = surveyResponseDao.saveSurveyResponse(response);
+				logger.info("A user completed survey " + response.getSurvey().getId());
+				System.out.println("A user completed survey " + response.getSurvey().getId() + " responseID : "
+						+ response.getId());
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -413,33 +418,33 @@ public class SurveyService {
 	}
 
 	public SurveyResponse getResponseFromJson(JSONObject jsonObject) {
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();	
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		SurveyResponse response = null;
 
 		try {
 			Survey survey = surveyDao.getSurvey(jsonObject.getLong("surveyId"));
-			
+
 			response = new SurveyResponse(survey);
-			
+
 			AnswerSheet answerSheet = response.getAnswerSheet();
-			if(survey.getType().equals(SurveyType.NAMED)){
+			if (survey.getType().equals(SurveyType.NAMED)) {
 				User user = (User) authentication.getPrincipal();
 				answerSheet.setAuthor(user);
 			}
-			if( survey.getType().equals( SurveyType.RECORDED ) ){
+			if (survey.getType().equals(SurveyType.RECORDED)) {
 				User user = (User) authentication.getPrincipal();
-                User recordedUser = userDao.getUser( user.getId() );
-                user.getSurveysTaken().add( survey );
-                userDao.saveUser( recordedUser );
-            }
+				User recordedUser = userDao.getUser(user.getId());
+				user.getSurveysTaken().add(survey);
+				userDao.saveUser(recordedUser);
+			}
 			answerSheet.setDate(new Date());
-			
+
 			JSONObject answerSheetJsonObject = jsonObject.getJSONObject("answerSheet");
 			JSONArray sectionsJsonArray = answerSheetJsonObject.getJSONArray("sections");
-			
+
 			Map<Integer, JSONObject> sectionsMap = new HashMap<>();
-			
+
 			for (int i = 0; i < sectionsJsonArray.length(); i++) {
 				JSONObject sectionJsonObject = sectionsJsonArray.getJSONObject(i);
 				int index = sectionJsonObject.getInt("index");
@@ -447,33 +452,33 @@ public class SurveyService {
 			}
 
 			List<AnswerSection> sections = answerSheet.getSections();
-			for(int i = 0; i<sections.size(); i++){
+			for (int i = 0; i < sections.size(); i++) {
 				AnswerSection section = answerSheet.getSections().get(i);
-				
+
 				JSONObject sectionJsonObject = sectionsMap.get(i);
 				JSONArray answersJsonArray = sectionJsonObject.getJSONArray("answers");
-				
-				Map<Long, JSONObject> answersMap = new HashMap<>(); 
-				
-				for(int j = 0; j<answersJsonArray.length(); j++) {
+
+				Map<Long, JSONObject> answersMap = new HashMap<>();
+
+				for (int j = 0; j < answersJsonArray.length(); j++) {
 					JSONObject answerJsonObject = answersJsonArray.getJSONObject(j);
 					Long questionId = answerJsonObject.getLong("questionId");
-					
+
 					answersMap.put(questionId, answerJsonObject);
 				}
-				
+
 				List<Answer> answers = section.getAnswers();
-				
-				for(Answer answer: answers){
+
+				for (Answer answer : answers) {
 					JSONObject answerJsonObject = answersMap.get(answer.getQuestion().getId());
-					
-					if(answer instanceof ChoiceAnswer){
+
+					if (answer instanceof ChoiceAnswer) {
 						JSONArray selectionsJsonArray = answerJsonObject.getJSONArray("selections");
-						for(int sel = 0; sel<selectionsJsonArray.length(); sel++){
-							((ChoiceAnswer)answer).getSelections().add(selectionsJsonArray.getInt(sel));
+						for (int sel = 0; sel < selectionsJsonArray.length(); sel++) {
+							((ChoiceAnswer) answer).getSelections().add(selectionsJsonArray.getInt(sel));
 						}
-					}else if(answer instanceof TextAnswer){
-						((TextAnswer)answer).setText(answerJsonObject.getString("text"));	
+					} else if (answer instanceof TextAnswer) {
+						((TextAnswer) answer).setText(answerJsonObject.getString("text"));
 					}
 				}
 			}
