@@ -90,9 +90,9 @@ public class SurveyService {
 		List<Survey> openSurveys = null;
 		openSurveys = surveyDao.getOpenSurveys(department);
 
-		if (openSurveys == null || openSurveys.size() == 0) {
+		/*if (openSurveys == null || openSurveys.size() == 0) {
 			User user = userDao.getUserByUsername("cysun");
-			/*--------------- Test data --------------*/
+			--------------- Test data --------------
 			Survey testSurvey = new Survey();
 			Calendar publishDate = Calendar.getInstance();
 			testSurvey.setPublishDate(publishDate);
@@ -107,7 +107,7 @@ public class SurveyService {
 			questionSheet.setDescription("This is a test question sheet.");
 			List<QuestionSection> sections = new ArrayList<>();
 
-			/* add section 1 */
+			 add section 1 
 			QuestionSection section = new QuestionSection();
 			section.setDescription("section1");
 			List<Question> questions = new ArrayList<>();
@@ -132,7 +132,7 @@ public class SurveyService {
 			section.setQuestions(questions);
 			sections.add(section);
 
-			/* add section 2 */
+			 add section 2 
 			questions = new ArrayList<>();
 			section = new QuestionSection();
 			section.setDescription("section2");
@@ -184,7 +184,7 @@ public class SurveyService {
 
 			openSurveys.add(testSurvey);
 
-			/*----------test survey 2------------------*/
+			----------test survey 2------------------
 
 			testSurvey = new Survey();
 			testSurvey.setType(SurveyType.RECORDED);
@@ -198,7 +198,7 @@ public class SurveyService {
 			questionSheet.setDescription("Another test question sheet.");
 			sections = new ArrayList<>();
 
-			/* add section 1 */
+			 add section 1 
 			section = new QuestionSection();
 			section.setDescription("section1");
 			questions = new ArrayList<>();
@@ -213,7 +213,7 @@ public class SurveyService {
 			section.setQuestions(questions);
 			sections.add(section);
 
-			/* add section 2 */
+			 add section 2 
 			questions = new ArrayList<>();
 			section = new QuestionSection();
 			section.setDescription("section2");
@@ -245,9 +245,9 @@ public class SurveyService {
 			testSurvey = surveyDao.saveSurvey(testSurvey);
 
 			openSurveys.add(testSurvey);
-			/*-----------------------------------------*/
+			-----------------------------------------
 
-			/*----------test survey 3------------------*/
+			----------test survey 3------------------
 
 			testSurvey = new Survey();
 			testSurvey.setType(SurveyType.NAMED);
@@ -261,7 +261,7 @@ public class SurveyService {
 			questionSheet.setDescription("Another test question sheet.");
 			sections = new ArrayList<>();
 
-			/* add section 1 */
+			 add section 1 
 			section = new QuestionSection();
 			section.setDescription("section1");
 			questions = new ArrayList<>();
@@ -272,7 +272,7 @@ public class SurveyService {
 			section.setQuestions(questions);
 			sections.add(section);
 
-			/* add section 2 */
+			 add section 2 
 			questions = new ArrayList<>();
 			section = new QuestionSection();
 			section.setDescription("section2");
@@ -299,8 +299,8 @@ public class SurveyService {
 			testSurvey = surveyDao.saveSurvey(testSurvey);
 
 			openSurveys.add(testSurvey);
-			/*-----------------------------------------*/
-		}
+			-----------------------------------------
+		}*/
 
 		Map<Long, Integer> sectionIndices = new HashMap<>();
 		for (Survey survey : openSurveys) {
