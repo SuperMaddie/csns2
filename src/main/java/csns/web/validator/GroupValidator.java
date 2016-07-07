@@ -19,15 +19,22 @@
 
 package csns.web.validator;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
+import csns.model.academics.Department;
 import csns.model.academics.Group;
+import csns.model.academics.dao.GroupDao;
 
 @Component
 public class GroupValidator implements Validator {
+	
+	@Autowired
+	GroupDao groupDao;
 
 	@Override
 	public boolean supports(Class<?> clazz){
@@ -36,8 +43,19 @@ public class GroupValidator implements Validator {
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		ValidationUtils.rejectIfEmptyOrWhitespace( errors,
-	            "name", "error.field.required" );
+		Group group = (Group) target;
+        Long id = group.getId();
+		
+		String name = group.getName();
+        if( !StringUtils.hasText( name ) )
+            errors.rejectValue( "name", "error.field.required" );
+        else
+        {
+            Group g = groupDao.getGroup( name );
+            if( g != null && !g.getId().equals( id ) )
+                errors.rejectValue( "name", "error.group.name.taken" );
+        }
+		
 		ValidationUtils.rejectIfEmptyOrWhitespace( errors,
 	            "description", "error.field.required" );
 	}

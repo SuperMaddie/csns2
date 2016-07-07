@@ -32,23 +32,14 @@ $(function(){
        });
     });
     
-    $("#form").submit(function(e){
-    	var name = $("#name").val();
-    	if(!nameValid){
-    		e.preventDefault();
-    		return false;
-    	}else{
-	    	$("#form").submit();
-	    	return true;
-    	}
-    });
 });
 
 function removeUser( id ) {
 	$("#removeUserId").val(id);
+	
 }
 
-function checkName() {
+/* function checkName() {
 	var url = "<c:url value='/department/${dept}/group/check' />";
 	var name = $("#name").val();
 	if(name.length > 0){
@@ -58,8 +49,8 @@ function checkName() {
 		$("#name").removeClass('valid');
 		$("#name").removeClass('invalid');
 	}
-}
-function onCheckNameComplete(valid){
+} */
+/* function onCheckNameComplete(valid){
 	nameValid = valid;
 	if(!valid){
 		$("#name").removeClass('valid');
@@ -68,7 +59,7 @@ function onCheckNameComplete(valid){
 		$("#name").removeClass('invalid');
 		$("#name").addClass('valid');
 	}
-}
+} */
 </script>
 <script src="<c:url value='/js/group.js' />" type="text/javascript"></script>
 
@@ -82,7 +73,7 @@ function onCheckNameComplete(valid){
   <tr>
     <th>Name</th>
     <td>
-      <form:input path="name" id="name" cssClass="leftinput" cssStyle="width: 99%;" onkeyup="checkName();"/>
+      <form:input path="name" id="name" cssClass="leftinput" cssStyle="width: 99%;"/>
       <div class="error"><form:errors path="name" /></div>
     </td>
   </tr>
@@ -101,7 +92,7 @@ function onCheckNameComplete(valid){
 		<p>
 		<input type="text" class="forminput add" name="userName" size="40" 
 		    placeholder="Search for users to add" id="input-user" />
-		<input type="submit" class="subbutton" name="add" value="Add" id="add-button" onclick="checkName();" />
+		<input type="submit" class="subbutton" name="add" value="Add" id="add-button" />
 		<button class="subbutton clear">Clear</button>
 		</p>
 		<input type="hidden" id="addUserId" name="addUserId" />

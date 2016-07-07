@@ -8,7 +8,6 @@ var nameValid = false;
 var origName = "";
 $(function(){
 	origName = $("#name").val().toLowerCase();
-	checkName();
     $("#add-button").click(function() {
     	$("#addUserId").val($("#input-user").attr('user-id'));
     });
@@ -33,22 +32,13 @@ $(function(){
            });
        });
     });
-    
-    $("#form").submit(function(e){
-    	if(!nameValid){
-    		e.preventDefault();
-    		return false;
-    	}else{
-	    	$("#form").submit();
-	    	return true;
-    	}
-    });
+
 });
 
 function removeUser( id ) {
 	$("#removeUserId").val(id);
 }
-function checkName() {
+/* function checkName() {
 	var url = "<c:url value='/department/${dept}/group/check' />";
 	var name = $("#name").val();
 	if(name.length > 0){
@@ -74,7 +64,7 @@ function onCheckNameComplete(valid){
 		$("#name").removeClass('invalid');
 		$("#name").addClass('valid');
 	}
-}
+} */
 </script>
 <script src="<c:url value='/js/group.js' />" type="text/javascript"></script>
 
@@ -90,7 +80,7 @@ function onCheckNameComplete(valid){
   <tr>
     <th>Name</th>
     <td>
-      <form:input path="name" id="name" cssClass="leftinput" cssStyle="width: 99%;" onkeyup="checkName();" />
+      <form:input path="name" id="name" cssClass="leftinput" cssStyle="width: 99%;"/>
       <div class="error"><form:errors path="name" /></div>
     </td>
   </tr>
