@@ -34,28 +34,29 @@ $(function(){
 <tr>
   <th>Title</th>
   <td>
-    <form:input path="sectionTitle" type="text" cssClass="forminput" required="required"/>
+    <form:input path="sectionTitle" type="text" cssClass="forminput"/>
+    <div class="error"><form:errors path="sectionTitle" /></div>
   </td>
 </tr>
 
 <tr>
   <th>Course Code</th>
   <td>
-    <form:input path="courseCode" id="courseCode" type="number" cssClass="mediuminput" required="required" />
+    <form:input path="courseCode" id="courseCode" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
 <tr>
   <th>Section Number</th>
   <td>
-  	<form:input path="number" id="number" type="number" cssClass="mediuminput" required="required" />
+  	<form:input path="number" id="number" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
 <tr>
   <th>Class Number</th>
   <td>
-  	<form:input path="classNumber" id="classNumber" type="number" cssClass="mediuminput" />
+  	<form:input path="classNumber" id="classNumber" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
@@ -107,7 +108,7 @@ $(function(){
 <tr>
   <th>Units</th>
   <td>
-    <form:input path="units" id="units" type="number" cssClass="mediuminput" />
+    <form:input path="units" id="units" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 
@@ -121,7 +122,7 @@ $(function(){
 <tr>
   <th>Capacity</th>
   <td>
-    <form:input path="capacity" type="number" cssClass="mediuminput" />
+    <form:input path="capacity" cssClass="mediuminput" required="required" />
   </td>
 </tr>
 

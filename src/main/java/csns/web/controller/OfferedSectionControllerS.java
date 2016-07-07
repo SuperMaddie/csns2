@@ -54,6 +54,7 @@ import csns.web.editor.CoursePropertyEditor;
 import csns.web.editor.StandingPropertyEditor;
 import csns.web.editor.TermPropertyEditor;
 import csns.web.editor.UserPropertyEditor;
+import csns.web.validator.OfferedSectionValidator;
 
 @Controller
 @SessionAttributes({ "section" })
@@ -67,6 +68,9 @@ public class OfferedSectionControllerS {
 
 	@Autowired
 	private DepartmentDao departmentDao;
+	
+	@Autowired
+	private OfferedSectionValidator offeredSectionValidator;
 
 	@Autowired
 	private WebApplicationContext context;
@@ -98,13 +102,18 @@ public class OfferedSectionControllerS {
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/offer", method = RequestMethod.POST)
 	public String offer(@ModelAttribute("section") OfferedSection section, @PathVariable String dept,
-			@RequestParam Term term, SessionStatus sessionStatus, BindingResult result) {
+			@RequestParam Term term, SessionStatus sessionStatus, BindingResult result, ModelMap models) {
 
 		Department department = departmentDao.getDepartment(dept);
 		
-		//add validate section here
+		offeredSectionValidator.validate( section, result );
+        if( result.hasErrors() ) {
+    		models.put("term", term);
+    		models.put("department", department);
+    		return "offeredSection/offer"; 
+        }
+		
 		section.setTerm(term);
-		section.setSubject(dept.toUpperCase());
 		
 		TentativeSchedule schedule = scheduleDao.getSchedule(department, term);
 		schedule.getSections().add(section);
@@ -131,8 +140,18 @@ public class OfferedSectionControllerS {
 
 	@RequestMapping(value = "/department/{dept}/offeredSection/edit", method = RequestMethod.POST)
 	public String edit(@ModelAttribute("section") OfferedSection section, @RequestParam Term term, @PathVariable String dept,
-			SessionStatus sessionStatus, BindingResult result) {
+			SessionStatus sessionStatus, BindingResult result, ModelMap models) {
 
+		Department department = departmentDao.getDepartment(dept);
+		
+		offeredSectionValidator.validate( section, result );
+        if( result.hasErrors() ) {
+    		models.put("term", term);
+    		models.put("department", department);
+    		models.put("section", section);
+    		return "offeredSection/offer"; 
+        }
+		
 		section = offeredSectionDao.saveSection(section);
 		logger.info(SecurityUtils.getUser().getUsername() + " editted section " + section.getSectionTitle() + 
 				"-" + section.getNumber() + " of term " + term.getShortString());
